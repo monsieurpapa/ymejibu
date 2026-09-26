@@ -1,0 +1,52 @@
+# Local run:  docker compose up --build   ->  http://localhost:8080
+# The five Excel workbooks in this folder are mounted read-only and imported on first start.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ymejibu
+      POSTGRES_USER: ymejibu
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ymejibu}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ymejibu -d ymejibu"]
+      interval: 5s
+      retries: 20
+    restart: unless-stopped
+
+  backend:
+    build: { context: ., dockerfile: backend/Dockerfile }
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_DB: ymejibu
+      POSTGRES_USER: ymejibu
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ymejibu}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-change-me-in-production}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-0}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-*}
+      DJANGO_CSRF_TRUSTED_ORIGINS: ${DJANGO_CSRF_TRUSTED_ORIGINS:-http://localhost:8080}
+      WORKBOOK_DIR: /workbooks
+      DATA_QUALITY_REPORT: /reports/data-quality-report.md
+      MEDIA_ROOT: /data/media
+      IMPORT_ON_START: ${IMPORT_ON_START:-1}
+      # Demo accounts (one per role) for local testing only. Leave empty in production.
+      DEMO_PASSWORD: ${DEMO_PASSWORD:-demo-2026}
+    volumes:
+      - ./:/workbooks:ro
+      - ./docs:/reports
+      - media:/data/media
+    restart: unless-stopped
+
+  web:
+    build: { context: ., dockerfile: frontend/Dockerfile }
+    depends_on: [backend]
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  media:
