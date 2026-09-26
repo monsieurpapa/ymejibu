@@ -1,0 +1,2018 @@
+{
+ "version": 1,
+ "language": "fr",
+ "enums": {
+  "bon_mauvais": [
+   {
+    "value": "BON",
+    "label": "Bon"
+   },
+   {
+    "value": "MAUVAIS",
+    "label": "Mauvais"
+   }
+  ],
+  "oui_non": [
+   {
+    "value": "OUI",
+    "label": "Oui"
+   },
+   {
+    "value": "NON",
+    "label": "Non"
+   }
+  ],
+  "gravite": [
+   {
+    "value": "LOW",
+    "label": "Faible"
+   },
+   {
+    "value": "MEDIUM",
+    "label": "Moyenne"
+   },
+   {
+    "value": "CRITICAL",
+    "label": "Critique"
+   }
+  ],
+  "source_energie": [
+   {
+    "value": "SNEL",
+    "label": "SNEL (réseau)"
+   },
+   {
+    "value": "GENSET",
+    "label": "Groupe électrogène"
+   },
+   {
+    "value": "SOLAR",
+    "label": "Solaire"
+   },
+   {
+    "value": "MIXED",
+    "label": "Mixte"
+   }
+  ],
+  "type_intervention": [
+   {
+    "value": "URGENT",
+    "label": "Maintenance Urgente (MU)"
+   },
+   {
+    "value": "CORRECTIVE",
+    "label": "Maintenance Corrective (MC)"
+   }
+  ],
+  "type_panne": [
+   {
+    "value": "FUITE",
+    "label": "Fuite"
+   },
+   {
+    "value": "RUPTURE",
+    "label": "Rupture de conduite"
+   },
+   {
+    "value": "PANNE_POMPE",
+    "label": "Panne de pompe"
+   },
+   {
+    "value": "PANNE_ELEC",
+    "label": "Panne électrique / coupure"
+   },
+   {
+    "value": "VANNE",
+    "label": "Vanne / accessoire défectueux"
+   },
+   {
+    "value": "BF",
+    "label": "Borne fontaine endommagée"
+   },
+   {
+    "value": "QUALITE",
+    "label": "Qualité de l'eau"
+   },
+   {
+    "value": "AUTRE",
+    "label": "Autre"
+   }
+  ],
+  "cause_panne": [
+   {
+    "value": "VANDALISM",
+    "label": "Vandalisme et vol"
+   },
+   {
+    "value": "OVERPRESSURE",
+    "label": "Surpression"
+   },
+   {
+    "value": "SHALLOW_PIPE",
+    "label": "Tuyau mal enfoui"
+   },
+   {
+    "value": "ILLEGAL_CONNECTION",
+    "label": "Connexion illégale"
+   },
+   {
+    "value": "MISHANDLING",
+    "label": "Mauvaise manipulation des accessoires par le technicien"
+   },
+   {
+    "value": "POOR_PIPE_QUALITY",
+    "label": "Mauvaise qualité du tuyau"
+   },
+   {
+    "value": "POOR_BACKFILL",
+    "label": "Mauvais remblai"
+   },
+   {
+    "value": "GROUND_MOVEMENT",
+    "label": "Mouvement de terrain"
+   },
+   {
+    "value": "POOR_INSTALLATION",
+    "label": "Mauvaise installation"
+   },
+   {
+    "value": "WATER_HAMMER",
+    "label": "Coup de bélier"
+   },
+   {
+    "value": "FAULTY_CONNECTION",
+    "label": "Connexion défectueuse"
+   },
+   {
+    "value": "OTHER",
+    "label": "Autre / non déterminée"
+   }
+  ],
+  "cause_arret": [
+   {
+    "value": "PUMP_FAILURE",
+    "label": "Panne des pompes"
+   },
+   {
+    "value": "PIPE_BURST",
+    "label": "Rupture des conduites"
+   },
+   {
+    "value": "POWER_CUT",
+    "label": "Coupure d'électricité"
+   },
+   {
+    "value": "PLANNED_MAINTENANCE",
+    "label": "Maintenance programmée"
+   },
+   {
+    "value": "OTHER",
+    "label": "Autre"
+   }
+  ],
+  "cause_perte_eau": [
+   {
+    "value": "PIPE_LEAK",
+    "label": "Fuites physiques sur les conduites"
+   },
+   {
+    "value": "PIPE_BURST",
+    "label": "Ruptures de conduites"
+   },
+   {
+    "value": "RESERVOIR_OVERFLOW",
+    "label": "Débordements de réservoirs (trop-plein)"
+   },
+   {
+    "value": "NETWORK_FLUSH",
+    "label": "Purges du réseau"
+   },
+   {
+    "value": "DRAINING",
+    "label": "Vidanges"
+   },
+   {
+    "value": "RESERVOIR_CLEANING",
+    "label": "Eau utilisée pour le nettoyage des réservoirs"
+   },
+   {
+    "value": "FIREFIGHTING",
+    "label": "Eau utilisée pour la lutte contre les incendies"
+   },
+   {
+    "value": "ILLEGAL_BRANCH",
+    "label": "Branchements illégaux"
+   },
+   {
+    "value": "FAULTY_METER",
+    "label": "Compteurs défectueux"
+   },
+   {
+    "value": "MISCALIBRATED_METER",
+    "label": "Compteurs mal calibrés"
+   },
+   {
+    "value": "ILLEGAL_CONNECTION",
+    "label": "Connexions illégales"
+   },
+   {
+    "value": "READING_ERROR",
+    "label": "Erreurs de relevé"
+   },
+   {
+    "value": "UNBILLED_CONSUMPTION",
+    "label": "Volumes consommés mais non facturés"
+   }
+  ]
+ },
+ "forms": [
+  {
+   "type": "POMPAGE",
+   "title": "Fiche journalière d'exploitation – Station de pompage",
+   "source": "2. ymejibu_E&M_Activités d'Exploitation_Goma Ouest_2026.xlsx!1. Fiche journ_E&M_Pompage",
+   "roles": [
+    "PUMP_FOCAL",
+    "RESP_TECH",
+    "ADJOINT",
+    "DATA_OFFICER"
+   ],
+   "scope": {
+    "asset_field": "general.station"
+   },
+   "sections": [
+    {
+     "key": "general",
+     "title": "Informations générales",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "station",
+       "label": "Nom de la station",
+       "type": "asset",
+       "assetTypes": [
+        "PUMP_STATION"
+       ],
+       "required": true
+      },
+      {
+       "key": "date",
+       "label": "Date",
+       "type": "date",
+       "required": true
+      },
+      {
+       "key": "operator",
+       "label": "Opérateur",
+       "type": "text",
+       "required": true
+      },
+      {
+       "key": "pump_specs",
+       "label": "Type de pompe et spécifications techniques",
+       "type": "asset_specs",
+       "readonly": true
+      },
+      {
+       "key": "energy_source",
+       "label": "Source d'énergie",
+       "type": "enum",
+       "enum": "source_energie"
+      }
+     ]
+    },
+    {
+     "key": "pumps",
+     "title": "Fonctionnement des pompes",
+     "kind": "table",
+     "minRows": 1,
+     "maxRows": 12,
+     "columns": [
+      {
+       "key": "time",
+       "label": "Heure",
+       "type": "time"
+      },
+      {
+       "key": "pump",
+       "label": "Pompe N°",
+       "type": "asset",
+       "assetTypes": [
+        "PUMP"
+       ],
+       "parentFrom": "general.station",
+       "required": true
+      },
+      {
+       "key": "start",
+       "label": "Heure démarrage",
+       "type": "time",
+       "required": true
+      },
+      {
+       "key": "stop",
+       "label": "Heure arrêt",
+       "type": "time",
+       "required": true
+      },
+      {
+       "key": "current_a",
+       "label": "Intensité (A)",
+       "type": "number",
+       "min": 0,
+       "max": 1000
+      },
+      {
+       "key": "pressure_bar",
+       "label": "Pression (bar)",
+       "type": "number",
+       "min": 0,
+       "max": 60
+      },
+      {
+       "key": "flow_m3h",
+       "label": "Débit (m³/h)",
+       "type": "number",
+       "min": 0,
+       "max": 400
+      },
+      {
+       "key": "volume_m3",
+       "label": "Volume pompé (m³)",
+       "type": "number",
+       "min": 0,
+       "max": 10000,
+       "added": true,
+       "note": "Nécessaire au rendement du réseau. Si vide : débit × durée de fonctionnement."
+      },
+      {
+       "key": "observations",
+       "label": "Observations",
+       "type": "text"
+      }
+     ]
+    },
+    {
+     "key": "technical",
+     "title": "Contrôle technique",
+     "kind": "checklist",
+     "rows": [
+      {
+       "key": "bearing",
+       "label": "Roulement"
+      },
+      {
+       "key": "vibrations",
+       "label": "Vibrations"
+      },
+      {
+       "key": "motor_temp",
+       "label": "Température moteur"
+      },
+      {
+       "key": "leak",
+       "label": "Fuite huile/eau"
+      },
+      {
+       "key": "fuel_level",
+       "label": "Niveau carburant"
+      },
+      {
+       "key": "panel",
+       "label": "État tableau électrique"
+      },
+      {
+       "key": "cabling",
+       "label": "État câblage"
+      }
+     ],
+     "columns": [
+      {
+       "key": "state",
+       "label": "État",
+       "type": "enum",
+       "enum": "bon_mauvais"
+      },
+      {
+       "key": "observations",
+       "label": "Observations",
+       "type": "text"
+      }
+     ]
+    },
+    {
+     "key": "energy",
+     "title": "Consommation énergétique",
+     "kind": "checklist",
+     "rows": [
+      {
+       "key": "snel",
+       "label": "SNEL",
+       "unit": "kWh"
+      },
+      {
+       "key": "genset",
+       "label": "Groupe électrogène",
+       "unit": "L"
+      }
+     ],
+     "columns": [
+      {
+       "key": "quantity",
+       "label": "Quantité consommée",
+       "type": "number",
+       "min": 0,
+       "max": 5000,
+       "unitFromRow": true
+      },
+      {
+       "key": "start",
+       "label": "Heure démarrage",
+       "type": "time"
+      },
+      {
+       "key": "stop",
+       "label": "Heure arrêt",
+       "type": "time"
+      },
+      {
+       "key": "reading_time",
+       "label": "Heure (relevé)",
+       "type": "time",
+       "note": "Libellé Excel « Heure » ambigu : interprété comme l'heure du relevé."
+      },
+      {
+       "key": "observation",
+       "label": "Observation",
+       "type": "text"
+      }
+     ]
+    },
+    {
+     "key": "quality",
+     "title": "Qualité de l'eau",
+     "kind": "checklist",
+     "rows": [
+      {
+       "key": "chlorine_g",
+       "label": "Qté chlore (g)"
+      },
+      {
+       "key": "residual_chlorine",
+       "label": "Chlore résiduel (mg/L)"
+      },
+      {
+       "key": "turbidity",
+       "label": "Turbidité (NTU)"
+      },
+      {
+       "key": "odour_colour",
+       "label": "Odeur/couleur anormale",
+       "valueEnum": "oui_non"
+      }
+     ],
+     "columns": [
+      {
+       "key": "value",
+       "label": "Valeur",
+       "type": "number",
+       "min": 0,
+       "max": 10000
+      },
+      {
+       "key": "acceptable",
+       "label": "Valeur acceptable",
+       "type": "threshold",
+       "readonly": true
+      },
+      {
+       "key": "conforme",
+       "label": "Conforme ? (oui/non)",
+       "type": "enum",
+       "enum": "oui_non",
+       "computed": true
+      },
+      {
+       "key": "action",
+       "label": "Action corrective",
+       "type": "text"
+      }
+     ]
+    },
+    {
+     "key": "maintenance",
+     "title": "Maintenance effectuée",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "maintenance_done",
+       "label": "Maintenance effectuée",
+       "type": "textarea"
+      }
+     ]
+    },
+    {
+     "key": "signature",
+     "title": "Signature",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "operator_sign",
+       "label": "Opérateur",
+       "type": "text"
+      },
+      {
+       "key": "manager_sign",
+       "label": "Responsable O&M",
+       "type": "text"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "STOCKAGE",
+   "title": "Fiche journalière d'exploitation – Stockage",
+   "source": "2. ymejibu_E&M_Activités d'Exploitation_Goma Ouest_2026.xlsx!2. Fiche journ_E&M_Stockage",
+   "roles": [
+    "STORAGE_FOCAL",
+    "RESP_TECH",
+    "ADJOINT",
+    "DATA_OFFICER"
+   ],
+   "scope": {
+    "asset_field": "general.reservoir"
+   },
+   "sections": [
+    {
+     "key": "general",
+     "title": "Informations générales",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "reservoir",
+       "label": "Nom du réservoir",
+       "type": "asset",
+       "assetTypes": [
+        "RESERVOIR"
+       ],
+       "required": true
+      },
+      {
+       "key": "volume",
+       "label": "Volume",
+       "type": "asset_capacity",
+       "readonly": true
+      },
+      {
+       "key": "location",
+       "label": "Localisation",
+       "type": "asset_location",
+       "readonly": true
+      },
+      {
+       "key": "date",
+       "label": "Date",
+       "type": "date",
+       "required": true
+      },
+      {
+       "key": "operator",
+       "label": "Nom de l'opérateur",
+       "type": "text",
+       "required": true
+      },
+      {
+       "key": "service_start",
+       "label": "Heure de début de service",
+       "type": "time"
+      },
+      {
+       "key": "service_end",
+       "label": "Heure de fin de service",
+       "type": "time"
+      }
+     ]
+    },
+    {
+     "key": "operations",
+     "title": "Suivi opérationnel",
+     "kind": "table",
+     "minRows": 0,
+     "maxRows": 24,
+     "columns": [
+      {
+       "key": "time",
+       "label": "Heure",
+       "type": "time",
+       "required": true
+      },
+      {
+       "key": "level_pct",
+       "label": "Niveau du réservoir (%)",
+       "type": "number",
+       "min": 0,
+       "max": 100,
+       "note": "Excel : « Niveau (volume ou %) » — séparé en deux colonnes pour éviter de mélanger les unités."
+      },
+      {
+       "key": "level_m3",
+       "label": "Niveau du réservoir (m³)",
+       "type": "number",
+       "min": 0,
+       "max": 5000
+      },
+      {
+       "key": "flow_in_m3h",
+       "label": "Débit entrant (m³/h)",
+       "type": "number",
+       "min": 0,
+       "max": 500
+      },
+      {
+       "key": "flow_out_m3h",
+       "label": "Débit sortant (m³/h)",
+       "type": "number",
+       "min": 0,
+       "max": 500
+      },
+      {
+       "key": "pressure_bar",
+       "label": "Pression réseau (bar)",
+       "type": "number",
+       "min": 0,
+       "max": 60
+      },
+      {
+       "key": "observations",
+       "label": "Observations",
+       "type": "text"
+      }
+     ]
+    },
+    {
+     "key": "daily",
+     "title": "Totaux journaliers",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "volume_in_m3",
+       "label": "Volume entrant journalier (m³)",
+       "type": "number",
+       "min": 0,
+       "max": 20000,
+       "added": true,
+       "note": "Colonne de la feuille STOCKAGE (base KPI), absente de la fiche papier."
+      },
+      {
+       "key": "volume_out_m3",
+       "label": "Volume sortant journalier (m³)",
+       "type": "number",
+       "min": 0,
+       "max": 20000,
+       "added": true,
+       "note": "Colonne de la feuille STOCKAGE (base KPI), absente de la fiche papier."
+      },
+      {
+       "key": "pressure_in_bar",
+       "label": "Pression entrée (bar)",
+       "type": "number",
+       "min": 0,
+       "max": 60,
+       "added": true,
+       "note": "Colonne de la feuille STOCKAGE."
+      },
+      {
+       "key": "pressure_out_bar",
+       "label": "Pression sortie (bar)",
+       "type": "number",
+       "min": 0,
+       "max": 60,
+       "added": true,
+       "note": "Colonne de la feuille STOCKAGE."
+      }
+     ]
+    },
+    {
+     "key": "safety",
+     "title": "Contrôle de sécurité et état physique",
+     "kind": "checklist",
+     "rows": [
+      {
+       "key": "leak",
+       "label": "Présence de fuite"
+      },
+      {
+       "key": "valves",
+       "label": "État des vannes"
+      },
+      {
+       "key": "overflow",
+       "label": "État du trop-plein"
+      },
+      {
+       "key": "ladders",
+       "label": "État des échelles"
+      },
+      {
+       "key": "intrusion",
+       "label": "Présence d'intrusion"
+      },
+      {
+       "key": "cover",
+       "label": "État du couvercle"
+      },
+      {
+       "key": "ventilation",
+       "label": "Ventilation fonctionnelle"
+      }
+     ],
+     "columns": [
+      {
+       "key": "answer",
+       "label": "Oui / Non",
+       "type": "enum",
+       "enum": "oui_non"
+      },
+      {
+       "key": "observations",
+       "label": "Observations",
+       "type": "text"
+      }
+     ]
+    },
+    {
+     "key": "quality",
+     "title": "Qualité de l'eau",
+     "kind": "checklist",
+     "rows": [
+      {
+       "key": "chlorine_g",
+       "label": "Qté chlore (g)"
+      },
+      {
+       "key": "residual_chlorine",
+       "label": "Chlore résiduel (mg/L)"
+      },
+      {
+       "key": "turbidity",
+       "label": "Turbidité (NTU)"
+      },
+      {
+       "key": "odour_colour",
+       "label": "Odeur/couleur anormale",
+       "valueEnum": "oui_non"
+      }
+     ],
+     "columns": [
+      {
+       "key": "value",
+       "label": "Valeur",
+       "type": "number",
+       "min": 0,
+       "max": 10000
+      },
+      {
+       "key": "acceptable",
+       "label": "Valeur acceptable",
+       "type": "threshold",
+       "readonly": true
+      },
+      {
+       "key": "conforme",
+       "label": "Conforme ? (oui/non)",
+       "type": "enum",
+       "enum": "oui_non",
+       "computed": true
+      },
+      {
+       "key": "action",
+       "label": "Action corrective",
+       "type": "text"
+      }
+     ]
+    },
+    {
+     "key": "incidents",
+     "title": "Incidents ou anomalies observés",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "incidents",
+       "label": "Incidents ou anomalies observés",
+       "type": "textarea"
+      }
+     ]
+    },
+    {
+     "key": "signature",
+     "title": "Signature",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "operator_sign",
+       "label": "Opérateur",
+       "type": "text"
+      },
+      {
+       "key": "supervisor_sign",
+       "label": "Superviseur",
+       "type": "text"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "RESEAU_BF",
+   "title": "Fiche journalière d'exploitation – Réseau et bornes fontaines",
+   "source": "2. ymejibu_E&M_Activités d'Exploitation_Goma Ouest_2026.xlsx!3. Fiche journ_E&M_Rés&BF",
+   "intro": "Le réseau est divisé en zones et chaque zone a son agent terrain, chargé d'identifier tout dysfonctionnement, fuite, etc.",
+   "roles": [
+    "ZONE_TECH",
+    "RESP_TECH",
+    "ADJOINT",
+    "DATA_OFFICER"
+   ],
+   "scope": {
+    "zone_field": "general.zone"
+   },
+   "sections": [
+    {
+     "key": "general",
+     "title": "Informations générales",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "zone",
+       "label": "Zone / Quartier",
+       "type": "zone",
+       "required": true
+      },
+      {
+       "key": "date",
+       "label": "Date",
+       "type": "date",
+       "required": true
+      },
+      {
+       "key": "agent",
+       "label": "Agent terrain",
+       "type": "text",
+       "required": true
+      },
+      {
+       "key": "far_pressure_bar",
+       "label": "Pression à la BF la plus éloignée (bar)",
+       "type": "number",
+       "min": 0,
+       "max": 60,
+       "added": true,
+       "note": "Colonne de la feuille RESEAU (base KPI)."
+      }
+     ]
+    },
+    {
+     "key": "network",
+     "title": "Inspection du réseau",
+     "kind": "table",
+     "minRows": 0,
+     "maxRows": 30,
+     "columns": [
+      {
+       "key": "node",
+       "label": "Localisation (nœud du réseau)",
+       "type": "node",
+       "required": true
+      },
+      {
+       "key": "reference",
+       "label": "Référence (repère)",
+       "type": "text"
+      },
+      {
+       "key": "leak",
+       "label": "Fuite observée",
+       "type": "enum",
+       "enum": "oui_non"
+      },
+      {
+       "key": "low_pressure",
+       "label": "Pression faible",
+       "type": "enum",
+       "enum": "oui_non"
+      },
+      {
+       "key": "damaged",
+       "label": "Accessoires endommagés",
+       "type": "text"
+      },
+      {
+       "key": "cause",
+       "label": "Cause probable du dommage",
+       "type": "enum",
+       "enum": "cause_panne"
+      },
+      {
+       "key": "illegal",
+       "label": "Connexion illégale",
+       "type": "enum",
+       "enum": "oui_non"
+      },
+      {
+       "key": "intervention",
+       "label": "Intervention réalisée",
+       "type": "text"
+      },
+      {
+       "key": "observation",
+       "label": "Observation",
+       "type": "text"
+      }
+     ]
+    },
+    {
+     "key": "kiosks",
+     "title": "Inspection des bornes fontaines",
+     "kind": "table",
+     "minRows": 0,
+     "maxRows": 30,
+     "columns": [
+      {
+       "key": "kiosk",
+       "label": "N° BF",
+       "type": "asset",
+       "assetTypes": [
+        "KIOSK",
+        "PRIVATE_CONNECTION"
+       ],
+       "zoneFrom": "general.zone",
+       "required": true
+      },
+      {
+       "key": "working",
+       "label": "Fonctionnelle ? (oui/non)",
+       "type": "enum",
+       "enum": "oui_non",
+       "required": true
+      },
+      {
+       "key": "state",
+       "label": "État de la robinetterie / drainage / propreté",
+       "type": "enum",
+       "enum": "bon_mauvais"
+      },
+      {
+       "key": "damaged",
+       "label": "Accessoires endommagés",
+       "type": "text"
+      },
+      {
+       "key": "cause",
+       "label": "Cause probable du dommage",
+       "type": "enum",
+       "enum": "cause_panne"
+      },
+      {
+       "key": "residual_chlorine",
+       "label": "Qualité – Chlore résiduel (mg/L)",
+       "type": "number",
+       "min": 0,
+       "max": 10
+      },
+      {
+       "key": "conforme",
+       "label": "Qualité conforme ? (oui/non)",
+       "type": "enum",
+       "enum": "oui_non",
+       "computed": true
+      },
+      {
+       "key": "volume_sold_m3",
+       "label": "Volume vendu (m³)",
+       "type": "number",
+       "min": 0,
+       "max": 1000,
+       "added": true,
+       "note": "Nécessaire pour l'eau facturée et l'eau non facturée (NRW). Colonne « Volume d'eau vendu » de la feuille RESEAU."
+      },
+      {
+       "key": "action",
+       "label": "Action corrective",
+       "type": "text"
+      }
+     ]
+    },
+    {
+     "key": "complaints",
+     "title": "Plaintes communautaires reçues",
+     "kind": "table",
+     "minRows": 0,
+     "maxRows": 20,
+     "columns": [
+      {
+       "key": "nature",
+       "label": "Nature plainte",
+       "type": "text",
+       "required": true
+      },
+      {
+       "key": "location",
+       "label": "Localisation",
+       "type": "text"
+      },
+      {
+       "key": "action",
+       "label": "Action prise",
+       "type": "text"
+      }
+     ]
+    },
+    {
+     "key": "signature",
+     "title": "Signature",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "agent_sign",
+       "label": "Agent terrain",
+       "type": "text"
+      },
+      {
+       "key": "supervisor_sign",
+       "label": "Superviseur",
+       "type": "text"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "PANNE",
+   "title": "Formulaire de rapport de panne",
+   "source": "2. ymejibu_E&M_Activités d'Exploitation_Goma Ouest_2026.xlsx!4. Fiche E&M_Rapp. Panne",
+   "intro": "Toute panne doit être signalée immédiatement par un agent terrain et le rapport envoyé dans les 24 h après le signalement.",
+   "roles": [
+    "ZONE_TECH",
+    "PUMP_FOCAL",
+    "STORAGE_FOCAL",
+    "SSE",
+    "RESP_TECH",
+    "ADJOINT",
+    "DATA_OFFICER",
+    "CONTRACTOR"
+   ],
+   "scope": {
+    "asset_field": "description.asset",
+    "zone_field": "general.zone"
+   },
+   "sections": [
+    {
+     "key": "general",
+     "title": "Informations générales",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "number",
+       "label": "Numéro incident",
+       "type": "auto",
+       "readonly": true,
+       "note": "Attribué par le serveur à la synchronisation."
+      },
+      {
+       "key": "date",
+       "label": "Date",
+       "type": "date",
+       "required": true
+      },
+      {
+       "key": "detected_time",
+       "label": "Heure détection",
+       "type": "time",
+       "required": true
+      },
+      {
+       "key": "reported_by",
+       "label": "Rapporté par",
+       "type": "text",
+       "required": true
+      },
+      {
+       "key": "zone",
+       "label": "Zone",
+       "type": "zone"
+      },
+      {
+       "key": "node",
+       "label": "Localisation – Nœud",
+       "type": "node"
+      },
+      {
+       "key": "location",
+       "label": "Localisation – Référence",
+       "type": "text"
+      },
+      {
+       "key": "gps",
+       "label": "Position GPS",
+       "type": "gps",
+       "added": true,
+       "note": "Position relevée par le téléphone."
+      }
+     ]
+    },
+    {
+     "key": "description",
+     "title": "Description de la panne",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "incident_type",
+       "label": "Type de panne",
+       "type": "enum",
+       "enum": "type_panne",
+       "required": true
+      },
+      {
+       "key": "asset",
+       "label": "Infrastructure / actif concerné(e)",
+       "type": "asset"
+      },
+      {
+       "key": "severity",
+       "label": "Gravité (Faible / Moyenne / Critique)",
+       "type": "enum",
+       "enum": "gravite",
+       "required": true
+      },
+      {
+       "key": "service_interrupted",
+       "label": "Service interrompu ? (Oui / Non)",
+       "type": "enum",
+       "enum": "oui_non",
+       "required": true
+      },
+      {
+       "key": "affected_zone",
+       "label": "Zone de la population affectée",
+       "type": "text"
+      },
+      {
+       "key": "affected_population",
+       "label": "Population affectée (nombre de personnes)",
+       "type": "integer",
+       "min": 0,
+       "max": 500000,
+       "added": true,
+       "note": "Permet de mesurer l'impact des pannes."
+      },
+      {
+       "key": "downtime_cause",
+       "label": "Cause de l'arrêt du service",
+       "type": "enum",
+       "enum": "cause_arret",
+       "added": true,
+       "note": "Répartition de la disponibilité (O&M KPI lignes 5-8)."
+      },
+      {
+       "key": "downtime_hours",
+       "label": "Durée d'arrêt du service (h)",
+       "type": "number",
+       "min": 0,
+       "max": 744,
+       "added": true,
+       "note": "Disponibilité du réseau. Si vide : calculée de l'heure de détection à la fin d'intervention."
+      },
+      {
+       "key": "photos",
+       "label": "Photos",
+       "type": "photos",
+       "added": true,
+       "note": "Photos compressées sur le téléphone (max 3)."
+      }
+     ]
+    },
+    {
+     "key": "analysis",
+     "title": "Analyse technique",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "probable_cause",
+       "label": "Cause probable",
+       "type": "enum",
+       "enum": "cause_panne",
+       "required": true
+      },
+      {
+       "key": "root_cause",
+       "label": "Cause racine identifiée",
+       "type": "textarea"
+      },
+      {
+       "key": "damage",
+       "label": "Dommages observés",
+       "type": "textarea"
+      },
+      {
+       "key": "risks",
+       "label": "Risques sécurité/santé",
+       "type": "textarea"
+      },
+      {
+       "key": "nrw_cause",
+       "label": "Cause de perte d'eau (si perte)",
+       "type": "enum",
+       "enum": "cause_perte_eau",
+       "added": true,
+       "note": "Analyse des causes de l'eau non facturée (O&M KPI lignes 36-48)."
+      },
+      {
+       "key": "estimated_loss_m3",
+       "label": "Volume d'eau perdu estimé (m³)",
+       "type": "number",
+       "min": 0,
+       "max": 100000,
+       "added": true,
+       "note": "Eau non facturée."
+      }
+     ]
+    },
+    {
+     "key": "intervention",
+     "title": "Intervention réalisée",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "maintenance_type",
+       "label": "Type : Maintenance Urgente (MU) ou Corrective (MC)",
+       "type": "enum",
+       "enum": "type_intervention",
+       "required": true
+      },
+      {
+       "key": "start",
+       "label": "Heure début intervention",
+       "type": "datetime"
+      },
+      {
+       "key": "end",
+       "label": "Heure fin intervention",
+       "type": "datetime"
+      },
+      {
+       "key": "team",
+       "label": "Équipe / M.O mobilisée",
+       "type": "textarea"
+      },
+      {
+       "key": "materials",
+       "label": "Matériels utilisés",
+       "type": "textarea"
+      },
+      {
+       "key": "cost_usd",
+       "label": "Coût estimatif (USD)",
+       "type": "number",
+       "min": 0,
+       "max": 1000000
+      },
+      {
+       "key": "logistics",
+       "label": "Appui logistique",
+       "type": "textarea"
+      }
+     ]
+    },
+    {
+     "key": "parts",
+     "title": "Pièces remplacées",
+     "kind": "table",
+     "minRows": 0,
+     "maxRows": 20,
+     "note": "Chaque pièce sortie du stock est déduite automatiquement du stock.",
+     "columns": [
+      {
+       "key": "item",
+       "label": "Pièce (article du stock)",
+       "type": "stock_item",
+       "required": true
+      },
+      {
+       "key": "quantity",
+       "label": "Quantité",
+       "type": "number",
+       "min": 0,
+       "max": 100000,
+       "required": true
+      }
+     ]
+    },
+    {
+     "key": "verification",
+     "title": "Vérification après réparation",
+     "kind": "checklist",
+     "rows": [
+      {
+       "key": "pressure",
+       "label": "Pression rétablie"
+      },
+      {
+       "key": "no_leak",
+       "label": "Absence de fuite"
+      },
+      {
+       "key": "flush",
+       "label": "Rinçage de conduite"
+      },
+      {
+       "key": "quality",
+       "label": "Qualité eau vérifiée"
+      },
+      {
+       "key": "restored",
+       "label": "Service restauré"
+      }
+     ],
+     "columns": [
+      {
+       "key": "answer",
+       "label": "Conforme ?",
+       "type": "enum",
+       "enum": "oui_non"
+      },
+      {
+       "key": "observation",
+       "label": "Observation",
+       "type": "text"
+      }
+     ]
+    },
+    {
+     "key": "lessons",
+     "title": "Leçons apprises / actions préventives",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "worked",
+       "label": "Qu'est-ce qui a marché",
+       "type": "textarea"
+      },
+      {
+       "key": "not_worked",
+       "label": "Qu'est-ce qui n'a pas marché",
+       "type": "textarea"
+      },
+      {
+       "key": "constraint",
+       "label": "Contrainte",
+       "type": "textarea"
+      },
+      {
+       "key": "preventive",
+       "label": "Actions préventives",
+       "type": "textarea"
+      },
+      {
+       "key": "recommendation",
+       "label": "Recommandation",
+       "type": "textarea"
+      }
+     ]
+    },
+    {
+     "key": "validation",
+     "title": "Validation",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "technician_sign",
+       "label": "Technicien",
+       "type": "text"
+      },
+      {
+       "key": "manager_sign",
+       "label": "Responsable O&M",
+       "type": "text"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "MP_POMPE",
+   "title": "Checklist – Maintenance préventive pompe",
+   "source": "2. ymejibu_E&M_Activités d'Exploitation_Goma Ouest_2026.xlsx!5. Checklist_Maint Prev_Pomp",
+   "roles": [
+    "PUMP_FOCAL",
+    "RESP_TECH",
+    "ADJOINT",
+    "DATA_OFFICER",
+    "CONTRACTOR"
+   ],
+   "scope": {
+    "asset_field": "general.pump"
+   },
+   "sections": [
+    {
+     "key": "general",
+     "title": "Informations",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "station",
+       "label": "Station",
+       "type": "asset",
+       "assetTypes": [
+        "PUMP_STATION"
+       ],
+       "required": true
+      },
+      {
+       "key": "pump",
+       "label": "Pompe N°",
+       "type": "asset",
+       "assetTypes": [
+        "PUMP"
+       ],
+       "parentFrom": "general.station",
+       "required": true
+      },
+      {
+       "key": "date",
+       "label": "Date inspection",
+       "type": "date",
+       "required": true
+      },
+      {
+       "key": "technician",
+       "label": "Technicien",
+       "type": "text",
+       "required": true
+      }
+     ]
+    },
+    {
+     "key": "mechanical",
+     "title": "Contrôle mécanique",
+     "kind": "checklist",
+     "rows": [
+      {
+       "key": "lubrication",
+       "label": "Lubrification correcte"
+      },
+      {
+       "key": "vibrations",
+       "label": "Vibrations anormales"
+      },
+      {
+       "key": "noise",
+       "label": "Bruit anormal"
+      },
+      {
+       "key": "alignment",
+       "label": "Alignement pompe-moteur"
+      },
+      {
+       "key": "bearings",
+       "label": "État des roulements"
+      }
+     ],
+     "columns": [
+      {
+       "key": "state",
+       "label": "Bon / Mauvais",
+       "type": "enum",
+       "enum": "bon_mauvais"
+      },
+      {
+       "key": "observations",
+       "label": "Observations / besoin en maintenance / échéance",
+       "type": "text"
+      }
+     ]
+    },
+    {
+     "key": "electrical",
+     "title": "Contrôle électrique",
+     "kind": "checklist",
+     "rows": [
+      {
+       "key": "current",
+       "label": "Intensité normale"
+      },
+      {
+       "key": "cabling",
+       "label": "État câblage"
+      },
+      {
+       "key": "protection",
+       "label": "Protection électrique fonctionnelle"
+      },
+      {
+       "key": "earthing",
+       "label": "Mise à terre correcte"
+      }
+     ],
+     "columns": [
+      {
+       "key": "state",
+       "label": "Bon / Mauvais",
+       "type": "enum",
+       "enum": "bon_mauvais"
+      },
+      {
+       "key": "observations",
+       "label": "Observation",
+       "type": "text"
+      }
+     ]
+    },
+    {
+     "key": "performance",
+     "title": "Contrôle performance",
+     "kind": "checklist",
+     "rows": [
+      {
+       "key": "flow",
+       "label": "Débit",
+       "unit": "m³/h"
+      },
+      {
+       "key": "pressure",
+       "label": "Pression",
+       "unit": "bar"
+      },
+      {
+       "key": "hours",
+       "label": "Temps de fonctionnement",
+       "unit": "h"
+      },
+      {
+       "key": "energy",
+       "label": "Consommation énergie",
+       "unit": "kWh"
+      }
+     ],
+     "columns": [
+      {
+       "key": "value",
+       "label": "Valeur",
+       "type": "number",
+       "min": 0,
+       "max": 100000,
+       "unitFromRow": true
+      },
+      {
+       "key": "state",
+       "label": "Bon / Mauvais",
+       "type": "enum",
+       "enum": "bon_mauvais"
+      },
+      {
+       "key": "observations",
+       "label": "Observation",
+       "type": "text"
+      }
+     ]
+    },
+    {
+     "key": "maintenance",
+     "title": "Maintenance",
+     "kind": "table",
+     "minRows": 0,
+     "maxRows": 10,
+     "columns": [
+      {
+       "key": "part",
+       "label": "Description de la partie concernée",
+       "type": "text",
+       "required": true
+      },
+      {
+       "key": "materials",
+       "label": "Matériels / équipements en besoin",
+       "type": "text"
+      },
+      {
+       "key": "labour",
+       "label": "MO en besoin",
+       "type": "text"
+      },
+      {
+       "key": "cost_usd",
+       "label": "Coût estimatif (USD)",
+       "type": "number",
+       "min": 0,
+       "max": 1000000
+      },
+      {
+       "key": "due",
+       "label": "Échéance / date proposée de maintenance",
+       "type": "date"
+      }
+     ]
+    },
+    {
+     "key": "validation",
+     "title": "Validation",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "technician_sign",
+       "label": "Technicien",
+       "type": "text"
+      },
+      {
+       "key": "manager_sign",
+       "label": "Responsable O&M",
+       "type": "text"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "MP_RESERVOIR",
+   "title": "Checklist – Maintenance préventive réservoir",
+   "source": "2. ymejibu_E&M_Activités d'Exploitation_Goma Ouest_2026.xlsx!6. Checklist_Maint Prev_ Reserv",
+   "roles": [
+    "STORAGE_FOCAL",
+    "RESP_TECH",
+    "ADJOINT",
+    "DATA_OFFICER",
+    "CONTRACTOR"
+   ],
+   "scope": {
+    "asset_field": "general.reservoir"
+   },
+   "sections": [
+    {
+     "key": "general",
+     "title": "Informations",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "reservoir",
+       "label": "Réservoir",
+       "type": "asset",
+       "assetTypes": [
+        "RESERVOIR"
+       ],
+       "required": true
+      },
+      {
+       "key": "volume",
+       "label": "Volume",
+       "type": "asset_capacity",
+       "readonly": true
+      },
+      {
+       "key": "date",
+       "label": "Date inspection",
+       "type": "date",
+       "required": true
+      },
+      {
+       "key": "technician",
+       "label": "Technicien",
+       "type": "text",
+       "required": true
+      }
+     ]
+    },
+    {
+     "key": "structural",
+     "title": "Contrôles structurels",
+     "kind": "checklist",
+     "rows": [
+      {
+       "key": "cracks",
+       "label": "Présence fissures"
+      },
+      {
+       "key": "leak",
+       "label": "Présence fuite"
+      },
+      {
+       "key": "fence",
+       "label": "État clôture"
+      },
+      {
+       "key": "ventilation",
+       "label": "État ventilation"
+      },
+      {
+       "key": "drainage",
+       "label": "Drainage autour du site"
+      },
+      {
+       "key": "lighting",
+       "label": "Éclairage"
+      },
+      {
+       "key": "other",
+       "label": "Autres à signaler"
+      }
+     ],
+     "columns": [
+      {
+       "key": "answer",
+       "label": "Conforme ? (oui/non)",
+       "type": "enum",
+       "enum": "oui_non"
+      },
+      {
+       "key": "observations",
+       "label": "Observations",
+       "type": "text"
+      }
+     ]
+    },
+    {
+     "key": "sanitary",
+     "title": "Contrôles sanitaires",
+     "kind": "checklist",
+     "rows": [
+      {
+       "key": "clean",
+       "label": "Réservoir propre"
+      },
+      {
+       "key": "no_contamination",
+       "label": "Absence contamination"
+      },
+      {
+       "key": "chlorination",
+       "label": "Chloration correcte"
+      },
+      {
+       "key": "overflow",
+       "label": "Trop-plein fonctionnel"
+      }
+     ],
+     "columns": [
+      {
+       "key": "answer",
+       "label": "Conforme ? Oui/Non",
+       "type": "enum",
+       "enum": "oui_non"
+      },
+      {
+       "key": "observations",
+       "label": "Observations",
+       "type": "text"
+      }
+     ]
+    },
+    {
+     "key": "maintenance",
+     "title": "Maintenance",
+     "kind": "table",
+     "minRows": 0,
+     "maxRows": 10,
+     "columns": [
+      {
+       "key": "part",
+       "label": "Description de la partie concernée",
+       "type": "text",
+       "required": true
+      },
+      {
+       "key": "materials",
+       "label": "Matériels / équipements / MO en besoin",
+       "type": "text"
+      },
+      {
+       "key": "cost_usd",
+       "label": "Coût estimatif (USD)",
+       "type": "number",
+       "min": 0,
+       "max": 1000000
+      },
+      {
+       "key": "due",
+       "label": "Échéance / date",
+       "type": "date"
+      }
+     ]
+    },
+    {
+     "key": "validation",
+     "title": "Validation",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "technician_sign",
+       "label": "Technicien",
+       "type": "text"
+      },
+      {
+       "key": "manager_sign",
+       "label": "Responsable O&M",
+       "type": "text"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "MP_RESEAU",
+   "title": "Checklist – Maintenance préventive réseau",
+   "source": "2. ymejibu_E&M_Activités d'Exploitation_Goma Ouest_2026.xlsx!7. Checklist_Maint Prev_ Res",
+   "roles": [
+    "ZONE_TECH",
+    "RESP_TECH",
+    "ADJOINT",
+    "DATA_OFFICER",
+    "CONTRACTOR"
+   ],
+   "scope": {
+    "zone_field": "general.zone"
+   },
+   "sections": [
+    {
+     "key": "general",
+     "title": "Informations générales",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "zone",
+       "label": "Zone / Quartier",
+       "type": "zone",
+       "required": true
+      },
+      {
+       "key": "date",
+       "label": "Date",
+       "type": "date",
+       "required": true
+      },
+      {
+       "key": "technician",
+       "label": "Technicien",
+       "type": "text",
+       "required": true
+      }
+     ]
+    },
+    {
+     "key": "network",
+     "title": "Inspection réseau",
+     "kind": "checklist",
+     "rows": [
+      {
+       "key": "leaks",
+       "label": "Fuites détectées"
+      },
+      {
+       "key": "buried",
+       "label": "Tuyauterie correctement enfouie"
+      },
+      {
+       "key": "pressure",
+       "label": "Pression correcte"
+      },
+      {
+       "key": "chambers",
+       "label": "Chambre de vannes disponible"
+      },
+      {
+       "key": "valves",
+       "label": "Vannes opérationnelles"
+      },
+      {
+       "key": "air_valves",
+       "label": "Ventouses fonctionnelles"
+      },
+      {
+       "key": "anchors",
+       "label": "Supports / blocs d'ancrage stables"
+      }
+     ],
+     "columns": [
+      {
+       "key": "answer",
+       "label": "Oui / Non",
+       "type": "enum",
+       "enum": "oui_non"
+      },
+      {
+       "key": "location",
+       "label": "Localisation (nœuds)",
+       "type": "text"
+      },
+      {
+       "key": "observation",
+       "label": "Observation",
+       "type": "text"
+      }
+     ]
+    },
+    {
+     "key": "kiosks",
+     "title": "Contrôle bornes fontaines",
+     "kind": "checklist",
+     "rows": [
+      {
+       "key": "taps",
+       "label": "Robinets fonctionnels"
+      },
+      {
+       "key": "drainage",
+       "label": "Drainage correct"
+      },
+      {
+       "key": "clean",
+       "label": "Zone propre"
+      },
+      {
+       "key": "no_stagnation",
+       "label": "Absence stagnation"
+      }
+     ],
+     "columns": [
+      {
+       "key": "answer",
+       "label": "Oui / Non",
+       "type": "enum",
+       "enum": "oui_non"
+      },
+      {
+       "key": "location",
+       "label": "Localisation (N° BF)",
+       "type": "text"
+      },
+      {
+       "key": "observation",
+       "label": "Observation",
+       "type": "text"
+      }
+     ]
+    },
+    {
+     "key": "maintenance",
+     "title": "Maintenance",
+     "kind": "table",
+     "minRows": 0,
+     "maxRows": 10,
+     "columns": [
+      {
+       "key": "part",
+       "label": "Description de la partie concernée",
+       "type": "text",
+       "required": true
+      },
+      {
+       "key": "materials",
+       "label": "Matériels / équipements / MO en besoin",
+       "type": "text"
+      },
+      {
+       "key": "cost_usd",
+       "label": "Coût estimatif (USD)",
+       "type": "number",
+       "min": 0,
+       "max": 1000000
+      },
+      {
+       "key": "due",
+       "label": "Échéance / date",
+       "type": "date"
+      },
+      {
+       "key": "observation",
+       "label": "Observation",
+       "type": "text"
+      }
+     ]
+    },
+    {
+     "key": "validation",
+     "title": "Validation",
+     "kind": "fields",
+     "fields": [
+      {
+       "key": "technician_sign",
+       "label": "Technicien",
+       "type": "text"
+      },
+      {
+       "key": "manager_sign",
+       "label": "Responsable O&M",
+       "type": "text"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "typo_fixes": {
+  "Fomulaire → Formulaire": "2. ymejibu_E&M_Activités d'Exploitation_Goma Ouest_2026.xlsx!4. Fiche E&M_Rapp. Panne!B2",
+  "Recommendation → Recommandation": "2. ymejibu_E&M_Activités d'Exploitation_Goma Ouest_2026.xlsx!4. Fiche E&M_Rapp. Panne!B43",
+  "Proprété → Propreté": "2. ymejibu_E&M_Activités d'Exploitation_Goma Ouest_2026.xlsx!3. Fiche journ_E&M_Rés&BF!D22",
+  "intentifié → identifié ; disfonctionnement → dysfonctionnement": "2. ymejibu_E&M_Activités d'Exploitation_Goma Ouest_2026.xlsx!3. Fiche journ_E&M_Rés&BF!B3",
+  "specifié → spécifié (parenthèse non fermée)": "2. ymejibu_E&M_Activités d'Exploitation_Goma Ouest_2026.xlsx!3. Fiche journ_E&M_Rés&BF!B9",
+  "enfuie → enfouie": "2. ymejibu_E&M_Activités d'Exploitation_Goma Ouest_2026.xlsx!7. Checklist_Maint Prev_ Res!B10",
+  "Etat → État": "plusieurs feuilles"
+ }
+}

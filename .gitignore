@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+backend/media/
+backend/staticfiles/
+backend/db.sqlite3
+node_modules/
+frontend/dist/
+frontend/dev-dist/
+frontend/test-results/
+frontend/playwright-report/
+.env
+repo.bundle
+*.bundle
+~$*.xlsx
