@@ -66,13 +66,22 @@ export default function FormPage() {
       ...item,
       payload,
       // Editing a sent sheet makes it a draft again until it is re-submitted.
-      status: item.status === "synced" || item.status === "invalid" || item.status === "forbidden" ? "draft" : item.status,
+      status: ["synced", "invalid", "forbidden", "error"].includes(item.status) ? "draft" : item.status,
       updated_at: new Date().toISOString(),
       title: summaryTitle(ref, form, payload),
     };
     setItem(next);
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(async () => {
+      // The sync may have run meanwhile: keep its server version so this edit is not a conflict with ourselves.
+      const fresh = await outboxGet(next.id);
+      if (fresh && fresh.version !== next.version) {
+        next.version = fresh.version;
+        if (fresh.status === "conflict") {
+          next.status = "conflict";
+          next.server = fresh.server;
+        }
+      }
       await outboxPut(next);
       setSaved(`Brouillon enregistré sur le téléphone à ${new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`);
     }, 400);
@@ -90,12 +99,13 @@ export default function FormPage() {
       return;
     }
     window.clearTimeout(timer.current);
-    await outboxPut({ ...item, status: "queued", errors: [], updated_at: new Date().toISOString(), title: summaryTitle(ref, form, item.payload) });
+    const fresh = await outboxGet(item.id);
+    await outboxPut({ ...item, version: fresh?.version ?? item.version, status: "queued", errors: [], updated_at: new Date().toISOString(), title: summaryTitle(ref, form, item.payload) });
     if (online) sync();
     nav("/");
   };
 
-  const serverErrors = item.status === "invalid" || item.status === "forbidden" ? item.errors ?? [] : [];
+  const serverErrors = ["invalid", "forbidden", "error"].includes(item.status) ? item.errors ?? [] : [];
 
   return (
     <main className="page form-page">

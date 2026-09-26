@@ -116,6 +116,8 @@ class FormSubmission(Record):
     version = models.PositiveIntegerField(default=1)
     client_updated_at = models.DateTimeField(null=True, blank=True)
     derivation_errors = models.JSONField(default=list, blank=True)
+    assigned_number = models.CharField(max_length=30, blank=True, help_text="Numéro d'incident attribué par le serveur (jamais par le téléphone)")
+    derived_keys = models.JSONField(default=list, blank=True, help_text="[code actif, date] des relevés alimentés par cette fiche")
 
     class Meta:
         ordering = ["-date", "-created_at"]
@@ -127,6 +129,7 @@ class Attachment(models.Model):
     submission = models.ForeignKey(FormSubmission, null=True, blank=True, on_delete=models.CASCADE, related_name="attachments")
     file = models.FileField(upload_to="attachments/%Y/%m/")
     content_type = models.CharField(max_length=60, blank=True)
+    sha256 = models.CharField(max_length=64, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
@@ -239,7 +242,14 @@ class WorkOrder(Record):
     planned_date = models.DateField()
     done_date = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.PLANNED)
-    submission = models.OneToOneField(FormSubmission, null=True, blank=True, on_delete=models.SET_NULL, related_name="work_order")
+    class Origin(models.TextChoices):
+        PLAN = "PLAN", "Plan annuel"
+        MANUAL = "MANUAL", "Saisie bureau"
+        CHECKLIST = "CHECKLIST", "Créé par une checklist (non planifié)"
+
+    origin = models.CharField(max_length=10, choices=Origin.choices, default=Origin.MANUAL)
+    submission = models.ForeignKey(FormSubmission, null=True, blank=True, on_delete=models.SET_NULL, related_name="work_orders",
+                                   help_text="Checklist qui a clôturé (ou créé) cet ordre de travail")
     incident = models.ForeignKey(Incident, null=True, blank=True, on_delete=models.SET_NULL, related_name="work_orders")
     plan_task = models.ForeignKey("plan.ActionPlanTask", null=True, blank=True, on_delete=models.SET_NULL, related_name="work_orders")
     downtime_hours = models.DecimalField(max_digits=7, decimal_places=2, default=0)

@@ -1,7 +1,7 @@
 from rest_framework import serializers, viewsets
 
 from .models import Asset, Fitting, Node, Person, PipeSegment, Site, StaffingNeed, Zone
-from .permissions import MANAGERS, user_site
+from .permissions import MANAGERS, user_site  # noqa: F401
 
 
 def request_site(request):
@@ -136,8 +136,10 @@ class FittingViewSet(SiteScopedViewSet):
 class PersonViewSet(SiteScopedViewSet):
     queryset = Person.objects.select_related("zone", "user")
     serializer_class = PersonSerializer
+    read_roles = MANAGERS
 
 
 class StaffingNeedViewSet(SiteScopedViewSet):
     queryset = StaffingNeed.objects.all()
     serializer_class = StaffingNeedSerializer
+    read_roles = MANAGERS

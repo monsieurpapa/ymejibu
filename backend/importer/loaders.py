@@ -584,6 +584,9 @@ def load_daily(wb, site, log):
             hours = raw.get(0)
             ref = wb.ref("kpi", "POMPES", f"{ws.cell(row, start).column_letter}{row}")
             volume = d(flow) * d(hours) if flow is not None and hours is not None else None
+            if DailyReading.objects.filter(asset=asset, date=day).exclude(source=RecordSource.IMPORT).exists():
+                log.skip(ref, f"Relevé {day} de {asset.code} déjà saisi dans l'application : conservé")
+                continue
             DailyReading.objects.update_or_create(
                 asset=asset, date=day,
                 defaults=dict(site=site, source=RecordSource.IMPORT, source_ref=ref, flags=flags, hours_run=d(hours),
@@ -614,6 +617,9 @@ def load_daily(wb, site, log):
                 continue
             ref = wb.ref("kpi", "STOCKAGE", f"{ws.cell(row, start).column_letter}{row}")
             num = lambda k: d(vals[k]) if k < len(vals) and isinstance(vals[k], (int, float)) else None  # noqa: E731
+            if DailyReading.objects.filter(asset=asset, date=day).exclude(source=RecordSource.IMPORT).exists():
+                log.skip(ref, f"Relevé {day} de {asset.code} déjà saisi dans l'application : conservé")
+                continue
             DailyReading.objects.update_or_create(
                 asset=asset, date=day,
                 defaults=dict(site=site, source=RecordSource.IMPORT, source_ref=ref, volume_in_m3=num(0), volume_out_m3=num(1),

@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from core.api import CodeRelatedField, SiteScopedViewSet, request_site
-from core.permissions import RolePermission, STOCK_ROLES
+from core.permissions import DASHBOARD_ROLES, STOCK_ROLES, RolePermission, set_roles
 
 from .models import StockItem, StockMovement, balances
 
@@ -54,6 +54,7 @@ class StockItemViewSet(SiteScopedViewSet):
     queryset = StockItem.objects.all()
     serializer_class = StockItemSerializer
     write_roles = STOCK_ROLES
+    read_roles = DASHBOARD_ROLES
     lookup_field = "code"
 
 
@@ -61,6 +62,7 @@ class StockMovementViewSet(SiteScopedViewSet):
     queryset = StockMovement.objects.select_related("item", "incident")
     serializer_class = StockMovementSerializer
     write_roles = STOCK_ROLES
+    read_roles = DASHBOARD_ROLES
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -81,3 +83,6 @@ def stock_alerts(request):
             out.append({"code": item.code, "name": item.name, "unit": item.unit,
                         "balance": float(b) if b is not None else None, "min_threshold": float(item.min_threshold)})
     return Response(out)
+
+
+set_roles(stock_alerts, read=DASHBOARD_ROLES)

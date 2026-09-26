@@ -1,9 +1,12 @@
 import base64
 import binascii
+import copy
+import hashlib
+import logging
 import uuid
 
 from django.core.files.base import ContentFile
-from django.db import transaction
+from django.db import InterfaceError, OperationalError, transaction
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from rest_framework import serializers
@@ -12,7 +15,7 @@ from rest_framework.response import Response
 
 from core.api import CodeRelatedField, SiteScopedViewSet, request_site
 from core.models import Asset, Node, Zone
-from core.permissions import ALL_ROLES, FIELD_ROLES, MANAGERS, RolePermission, user_role
+from core.permissions import ALL_ROLES, DASHBOARD_ROLES, FIELD_ROLES, MANAGERS, STAFF_ROLES, RolePermission, set_roles, user_role
 
 from .derive import derive
 from .forms import definitions, form_def, to_date, validate_payload
@@ -28,6 +31,8 @@ from .models import (
     WaterQualityTest,
     WorkOrder,
 )
+
+logger = logging.getLogger(__name__)
 
 MAX_PHOTOS = 3
 MAX_PHOTO_BYTES = 1_500_000
@@ -132,6 +137,7 @@ class SubmissionViewSet(SiteScopedViewSet):
     queryset = FormSubmission.objects.select_related("asset", "zone", "submitted_by")
     serializer_class = FormSubmissionSerializer
     http_method_names = ["get", "patch", "head", "options"]
+    read_roles = STAFF_ROLES
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -152,6 +158,7 @@ class SubmissionViewSet(SiteScopedViewSet):
 class ReadingViewSet(SiteScopedViewSet):
     queryset = DailyReading.objects.select_related("asset")
     serializer_class = DailyReadingSerializer
+    read_roles = DASHBOARD_ROLES
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -167,6 +174,7 @@ class ReadingViewSet(SiteScopedViewSet):
 class IncidentViewSet(SiteScopedViewSet):
     queryset = Incident.objects.select_related("asset", "node", "zone", "submission").prefetch_related("submission__attachments")
     serializer_class = IncidentSerializer
+    read_roles = DASHBOARD_ROLES
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -181,11 +189,13 @@ class IncidentViewSet(SiteScopedViewSet):
 class WorkOrderViewSet(SiteScopedViewSet):
     queryset = WorkOrder.objects.select_related("asset", "zone")
     serializer_class = WorkOrderSerializer
+    read_roles = DASHBOARD_ROLES
 
 
 class QualityTestViewSet(SiteScopedViewSet):
     queryset = WaterQualityTest.objects.select_related("asset")
     serializer_class = WaterQualityTestSerializer
+    read_roles = DASHBOARD_ROLES
 
 
 class QualityThresholdViewSet(SiteScopedViewSet):
@@ -196,36 +206,71 @@ class QualityThresholdViewSet(SiteScopedViewSet):
 class ExpenseViewSet(SiteScopedViewSet):
     queryset = Expense.objects.all()
     serializer_class = ExpenseSerializer
+    read_roles = DASHBOARD_ROLES
 
 
 # ------------------------------------------------------------------ sync
 
+def _photo_bytes(photo):
+    if not isinstance(photo, str) or not photo.startswith("data:image/"):
+        return None, None
+    header, _, data = photo.partition(",")
+    try:
+        raw = base64.b64decode(data, validate=True)
+    except (binascii.Error, ValueError):
+        return None, None
+    return header, raw
+
+
 def _store_photos(submission, payload):
-    """Replace base64 photos in the payload with stored attachment references."""
+    """Replace base64 photos with attachment references; identical photos are stored once; dropped ones are deleted."""
     desc = payload.get("description") or {}
     photos = desc.get("photos") or []
-    stored = []
+    stored, keep = [], set()
     for photo in photos[:MAX_PHOTOS]:
         if isinstance(photo, dict) and photo.get("attachment"):
-            stored.append(photo)
+            att = Attachment.objects.filter(pk=photo["attachment"], submission=submission).first()
+            if att:
+                stored.append({"attachment": str(att.id), "url": att.file.url})
+                keep.add(att.id)
             continue
-        if not isinstance(photo, str) or not photo.startswith("data:image/"):
+        header, raw = _photo_bytes(photo)
+        if raw is None or len(raw) > MAX_PHOTO_BYTES:
             continue
-        header, _, data = photo.partition(",")
-        ext = "png" if "png" in header else "jpg"
-        try:
-            raw = base64.b64decode(data, validate=True)
-        except (binascii.Error, ValueError):
-            continue
-        if len(raw) > MAX_PHOTO_BYTES:
-            continue
-        att = Attachment(submission=submission, content_type=header[5:].split(";")[0])
-        att.file.save(f"{uuid.uuid4()}.{ext}", ContentFile(raw), save=True)
+        digest = hashlib.sha256(raw).hexdigest()
+        att = Attachment.objects.filter(submission=submission, sha256=digest).first()
+        if att is None:
+            att = Attachment(submission=submission, content_type=header[5:].split(";")[0], sha256=digest)
+            att.file.save(f"{uuid.uuid4()}.{'png' if 'png' in header else 'jpg'}", ContentFile(raw), save=True)
         stored.append({"attachment": str(att.id), "url": att.file.url})
-    if photos:
+        keep.add(att.id)
+    for old in Attachment.objects.filter(submission=submission).exclude(pk__in=keep):
+        name, storage = old.file.name, old.file.storage
+        old.delete()
+        # Remove the file only once the whole sheet is saved: a rollback must not lose the photo.
+        transaction.on_commit(lambda n=name, st=storage: st.delete(n))
+    if photos or "photos" in desc:
         desc["photos"] = stored
         payload["description"] = desc
     return payload
+
+
+def _comparable(submission, payload):
+    """Payload without server-assigned values, photos reduced to their content hash (for retry detection)."""
+    p = copy.deepcopy(payload or {})
+    (p.get("general") or {}).pop("number", None)
+    desc = p.get("description") or {}
+    if "photos" in desc:
+        hashes = []
+        for photo in desc.get("photos") or []:
+            if isinstance(photo, dict) and photo.get("attachment"):
+                att = Attachment.objects.filter(pk=photo["attachment"]).first()
+                hashes.append(att.sha256 if att else photo["attachment"])
+            else:
+                _, raw = _photo_bytes(photo)
+                hashes.append(hashlib.sha256(raw).hexdigest() if raw is not None else str(photo)[:40])
+        desc["photos"] = hashes
+    return p
 
 
 def _serialize_sub(sub):
@@ -289,7 +334,7 @@ def push_one(request, site, item):
                 return {"id": str(sub_id), "status": "locked", "server": _serialize_sub(existing)}
             base = item.get("base_version")
             if base != existing.version and not item.get("force"):
-                if existing.payload == payload:
+                if _comparable(existing, existing.payload) == _comparable(existing, payload):
                     return {"id": str(sub_id), "status": "unchanged", "version": existing.version, "server": _serialize_sub(existing)}
                 return {"id": str(sub_id), "status": "conflict", "server": _serialize_sub(existing)}
             sub = existing
@@ -314,11 +359,21 @@ def sync_push(request):
     """Upload queued submissions. Each item is processed independently."""
     site = request_site(request)
     items = request.data.get("items") or []
-    return Response({"results": [push_one(request, site, it) for it in items[:100]], "server_time": timezone.now().isoformat()})
+    results = []
+    for it in items[:100]:
+        try:
+            results.append(push_one(request, site, it))
+        except (OperationalError, InterfaceError):  # database restart, deadlock…: the phone keeps it queued and retries
+            logger.exception("sync push transient failure for %s", it.get("id"))
+            results.append({"id": it.get("id"), "status": "retry"})
+        except Exception as exc:  # one bad sheet must never block the others
+            logger.exception("sync push failed for %s", it.get("id"))
+            results.append({"id": it.get("id"), "status": "error",
+                            "errors": [{"field": "", "message": f"Erreur serveur ({exc.__class__.__name__}) : contacter le responsable des données"}]})
+    return Response({"results": results, "server_time": timezone.now().isoformat()})
 
 
-sync_push.cls.write_roles = FIELD_ROLES
-sync_push.cls.read_roles = ALL_ROLES
+set_roles(sync_push, read=ALL_ROLES, write=FIELD_ROLES)
 
 
 @api_view(["GET"])

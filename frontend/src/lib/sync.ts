@@ -5,7 +5,7 @@ import type { OutboxItem } from "./types";
 
 type Result = {
   id: string;
-  status: "created" | "updated" | "unchanged" | "conflict" | "invalid" | "forbidden" | "locked";
+  status: "created" | "updated" | "unchanged" | "conflict" | "invalid" | "forbidden" | "locked" | "error" | "retry";
   version?: number;
   server?: OutboxItem["server"] & { payload: any };
   errors?: { field: string; message: string }[];
@@ -88,8 +88,9 @@ async function doSync(): Promise<SyncSummary> {
         next.status = "invalid";
         next.errors = r.errors ?? [];
         summary.invalid++;
-      } else if (r.status === "forbidden") {
-        next.status = "forbidden";
+      } else if (r.status === "forbidden" || r.status === "error") {
+        // Kept on the phone, shown to the user, not retried in a loop; the other sheets keep flowing.
+        next.status = r.status;
         next.errors = r.errors ?? [];
       }
       await outboxPut(next);

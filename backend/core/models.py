@@ -234,3 +234,29 @@ class StaffingNeed(SourceTracked):
     start = models.DateField(null=True, blank=True)
     end = models.DateField(null=True, blank=True)
     comment = models.TextField(blank=True)
+
+
+class Sequence(models.Model):
+    """Gap-tolerant, never-reused counters (incident numbers). Incremented under a row lock."""
+
+    site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name="sequences")
+    name = models.CharField(max_length=40)
+    value = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = [("site", "name")]
+
+    @classmethod
+    def next(cls, site, name, floor=0):
+        from django.db import IntegrityError, transaction
+
+        with transaction.atomic():
+            try:
+                with transaction.atomic():
+                    cls.objects.get_or_create(site=site, name=name, defaults={"value": floor})
+            except IntegrityError:
+                pass  # created concurrently
+            seq = cls.objects.select_for_update().get(site=site, name=name)
+            seq.value = max(seq.value, floor) + 1
+            seq.save(update_fields=["value"])
+            return seq.value

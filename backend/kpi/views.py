@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from core.api import request_site
 from core.models import Asset
-from core.permissions import RolePermission
+from core.permissions import DASHBOARD_ROLES, RolePermission, set_roles
 from ops.models import FormSubmission, Incident
 
 from .export import csv_text, workbook_bytes
@@ -89,3 +89,7 @@ def overview(request):
         "history_actual_months": MonthlyAggregate.objects.filter(site=site, status="ACTUAL").values("month").distinct().count(),
         "history_provisional_months": MonthlyAggregate.objects.filter(site=site, status="PROVISIONAL").values("month").distinct().count(),
     })
+
+
+for _view in (kpis, export_xlsx, export_csv, map_data, overview):
+    set_roles(_view, read=DASHBOARD_ROLES)

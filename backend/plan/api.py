@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from core.api import CodeRelatedField, SiteScopedViewSet
 from core.models import Asset
+from core.permissions import DASHBOARD_ROLES
 
 from .models import ActionPlanTask, BudgetLine, MonthlyBudget, Tariff
 
@@ -40,11 +41,13 @@ class ActionPlanTaskSerializer(serializers.ModelSerializer):
 class TariffViewSet(SiteScopedViewSet):
     queryset = Tariff.objects.all()
     serializer_class = TariffSerializer
+    read_roles = DASHBOARD_ROLES
 
 
 class BudgetLineViewSet(SiteScopedViewSet):
     queryset = BudgetLine.objects.all()
     serializer_class = BudgetLineSerializer
+    read_roles = DASHBOARD_ROLES
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -57,11 +60,13 @@ class BudgetLineViewSet(SiteScopedViewSet):
 class MonthlyBudgetViewSet(SiteScopedViewSet):
     queryset = MonthlyBudget.objects.all()
     serializer_class = MonthlyBudgetSerializer
+    read_roles = DASHBOARD_ROLES
 
 
 class ActionPlanTaskViewSet(SiteScopedViewSet):
     queryset = ActionPlanTask.objects.select_related("asset")
     serializer_class = ActionPlanTaskSerializer
+    read_roles = DASHBOARD_ROLES
 
     def get_queryset(self):
         qs = super().get_queryset()
