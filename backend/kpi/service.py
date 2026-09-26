@@ -174,7 +174,10 @@ def compute_year(site, year, today=None):
             else:
                 base[key], source[key] = None, None
         # "budget" is a plan: known even for future months.
-        has_data = bool(agg) or any(k for k in rec if not k.startswith("_")) or bool(rec.get("_pump_days"))
+        # Budget and spending alone do not make an operational month: availability etc. need field records.
+        non_operational = {"budget", *COST_KEYS.values()}
+        has_data = any(k not in non_operational for k in agg) or any(
+            k not in non_operational and not k.startswith("_") for k in rec) or bool(rec.get("_pump_days"))
         if status == "future":
             base = {k: (v if k == "budget" else None) for k, v in base.items()}
             has_data = False
@@ -230,6 +233,8 @@ def compute_year(site, year, today=None):
         qc = (base["quality_field_compliant"] or 0) + (base["quality_lab_compliant"] or 0)
         k["quality_rate"] = F.compliance_rate(qc, qt) if qt else None
 
+        if status == "future":
+            k = {key: (val if key in ("budget", "period_hours", "price_kwh", "price_fuel") else None) for key, val in k.items()}
         months.append({
             "month": m,
             "label": MONTHS_FR[m - 1],

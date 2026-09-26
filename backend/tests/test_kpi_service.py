@@ -112,3 +112,14 @@ def test_history_actual_overrides_provisional_ignored(site):
     jul = r["months"][6]
     assert jul["values"]["volume_introduced"] is None  # provisional value not used
     assert jul["provisional"]["volume_introduced"] == 999
+
+
+def test_budget_alone_is_not_operational_data(site):
+    MonthlyBudget.objects.create(site=site, month=dt.date(2026, 9, 1), amount_usd=500)
+    MonthlyBudget.objects.create(site=site, month=dt.date(2026, 11, 1), amount_usd=500)
+    WorkOrder.objects.create(site=site, title="MP", kind="PREVENTIVE", category="POMPAGE", planned_date=dt.date(2026, 11, 5))
+    r = compute_year(site, 2026, today=TODAY)
+    assert month(r, 9)["availability"] is None  # no field record in September -> no "100 %"
+    assert month(r, 9)["budget"] == 500
+    assert month(r, 11)["pm_done_total"] is None and month(r, 11)["pm_planned_total"] is None  # future
+    assert month(r, 11)["budget"] == 500  # the plan stays visible
