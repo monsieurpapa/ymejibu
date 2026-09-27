@@ -14,6 +14,7 @@ La documentation est organisée selon le modèle **Diátaxis** : chaque document
 | Tâche | Document |
 |---|---|
 | Déployer en production (HTTPS) | [guides/deploiement.md](guides/deploiement.md) |
+| Mise en ligne clé en main sur Hetzner (≈ 7–8 €/mois) | [guides/deploiement-hetzner.md](guides/deploiement-hetzner.md) |
 | Sauvegarder et restaurer | [guides/sauvegarde-restauration.md](guides/sauvegarde-restauration.md) |
 | Surveiller le serveur, résoudre un incident | [guides/exploitation.md](guides/exploitation.md) |
 | Créer, modifier, désactiver un compte | [guides/gestion-utilisateurs.md](guides/gestion-utilisateurs.md) |

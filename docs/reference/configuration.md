@@ -20,6 +20,7 @@ Toute la configuration passe par des **variables d'environnement** (principe « 
 | `MEDIA_ROOT` | `backend/media` | `/data/media` (volume) | Photos des pannes |
 | `WORKBOOK_DIR` | racine du dépôt | `/workbooks` (Compose, lecture seule) | Dossier des 5 classeurs Excel |
 | `DATA_QUALITY_REPORT` | `docs/data-quality-report.md` | `/reports/data-quality-report.md` | Rapport écrit par `import_excel` |
+| `DJANGO_BEHIND_HTTPS_PROXY` | `0` | `1` | Derrière le proxy HTTPS (Caddy) : fait confiance à `X-Forwarded-Proto`, cookies `Secure` |
 | `FORMS_DEFINITION_FILE` | `shared/forms.fr.json` | | Définitions des formulaires |
 
 ## Entrée du conteneur backend (`backend/docker-entrypoint.sh`)
@@ -27,7 +28,15 @@ Toute la configuration passe par des **variables d'environnement** (principe « 
 | Variable | Défaut | Rôle |
 |---|---|---|
 | `IMPORT_ON_START` | `1` | Importe les classeurs au premier démarrage (base vide) ; ignoré ensuite |
-| `DEMO_PASSWORD` | `demo-2026` dans `docker-compose.yml` | Crée les comptes de démonstration ; **laisser vide en production** |
+| `DEMO_PASSWORD` | `demo-2026` dans `docker-compose.yml` (si la variable est absente) | Crée les comptes de démonstration ; `DEMO_PASSWORD=` (vide) dans `.env` les désactive. **Vide en production** (imposé par `deploy/docker-compose.prod.yml`) |
+
+## Docker Compose (production, `deploy/`)
+
+| Variable | Exemple | Rôle |
+|---|---|---|
+| `COMPOSE_FILE` | `docker-compose.yml:deploy/docker-compose.prod.yml` | Ajoute la surcouche de production (Caddy, journaux limités) à chaque `docker compose` |
+| `DOMAIN` | `em.203-0-113-10.sslip.io` | Nom servi en HTTPS par Caddy (certificat Let's Encrypt automatique) |
+| `WEB_BIND` | `127.0.0.1:8080` | Adresse de publication de nginx ; `8080` (défaut) l'expose sur toutes les interfaces, pour le poste de développement uniquement |
 
 ## Frontend
 

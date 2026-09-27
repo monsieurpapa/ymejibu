@@ -27,7 +27,7 @@ Ouvrir <http://localhost:8080>. Au premier démarrage, le backend applique les m
 | <http://localhost:8080/api/redoc/> | Documentation de l'API (ReDoc) |
 | <http://localhost:8080/admin/> | Administration (super-utilisateur : `docker compose exec backend python manage.py createsuperuser`) |
 
-> Production : suivre [docs/guides/deploiement.md](docs/guides/deploiement.md) (HTTPS obligatoire, secrets, **aucun compte de démonstration**).
+> Production : suivre [docs/guides/deploiement.md](docs/guides/deploiement.md) (HTTPS obligatoire, secrets, **aucun compte de démonstration**) ; recette automatisée pour un serveur Hetzner à ≈ 7–8 €/mois : [docs/guides/deploiement-hetzner.md](docs/guides/deploiement-hetzner.md).
 
 ## Documentation
 

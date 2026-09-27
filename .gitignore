@@ -13,3 +13,4 @@ frontend/playwright-report/
 repo.bundle
 *.bundle
 ~$*.xlsx
+docs/rapport-qualite-production.md

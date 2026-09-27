@@ -1,0 +1,31 @@
+#cloud-config
+# Paste this whole file into "Cloud config" when creating the Hetzner server (Ubuntu 24.04).
+# It hardens the server, installs Docker, fetches the application and starts it over HTTPS.
+# Progress: ssh root@<ip> then `tail -f /var/log/cloud-init-output.log`.
+package_update: true
+package_upgrade: true
+packages:
+  - git
+  - ufw
+  - fail2ban
+  - unattended-upgrades
+
+write_files:
+  - path: /etc/ssh/sshd_config.d/99-ymejibu.conf
+    content: |
+      PasswordAuthentication no
+      KbdInteractiveAuthentication no
+      PermitRootLogin prohibit-password
+
+runcmd:
+  - ufw default deny incoming
+  - ufw default allow outgoing
+  - ufw allow OpenSSH
+  - ufw allow 80/tcp
+  - ufw allow 443/tcp
+  - ufw allow 443/udp
+  - ufw --force enable
+  - systemctl reload ssh || systemctl reload sshd || true
+  - systemctl enable --now fail2ban
+  - git clone --branch feat/em-platform https://github.com/monsieurpapa/ymejibu.git /opt/ymejibu
+  - bash /opt/ymejibu/deploy/install.sh

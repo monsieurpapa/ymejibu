@@ -33,7 +33,9 @@ services:
       MEDIA_ROOT: /data/media
       IMPORT_ON_START: ${IMPORT_ON_START:-1}
       # Demo accounts (one per role) for local testing only. Leave empty in production.
-      DEMO_PASSWORD: ${DEMO_PASSWORD:-demo-2026}
+      # `${VAR-default}` (no colon): an explicitly empty DEMO_PASSWORD in .env disables the demo accounts.
+      DEMO_PASSWORD: ${DEMO_PASSWORD-demo-2026}
+      DJANGO_BEHIND_HTTPS_PROXY: ${DJANGO_BEHIND_HTTPS_PROXY:-0}
     volumes:
       - ./:/workbooks:ro
       - ./docs:/reports
@@ -44,7 +46,8 @@ services:
     build: { context: ., dockerfile: frontend/Dockerfile }
     depends_on: [backend]
     ports:
-      - "8080:80"
+      # Production binds to 127.0.0.1 only (WEB_BIND in .env); HTTPS is served by Caddy (deploy/).
+      - "${WEB_BIND:-8080}:80"
     restart: unless-stopped
 
 volumes:

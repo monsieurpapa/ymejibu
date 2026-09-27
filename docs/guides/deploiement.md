@@ -2,6 +2,8 @@
 
 Objectif : faire tourner la plateforme sur un serveur accessible en HTTPS par les téléphones et le bureau.
 
+> Pour un serveur Hetzner, tout ce guide est automatisé par `deploy/` : voir [deploiement-hetzner.md](deploiement-hetzner.md).
+
 ## Prérequis
 
 | Élément | Minimum conseillé |
