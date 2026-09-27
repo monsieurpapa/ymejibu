@@ -15,9 +15,11 @@ Toutes les modifications notables sont consignées ici. Format : [Keep a Changel
 - Interface : barre d'application, écran d'accueil groupé (relevés, pannes, préventif), en-tête coloré des fiches, messages de confirmation, squelettes de chargement, onglets animés, transitions de page (View Transitions) ; animations désactivées si le système demande moins de mouvement. Contrastes vérifiés ≥ 4,5:1 en thème clair et sombre.
 
 - Mise en production clé en main sur Hetzner (≈ 7–8 €/mois) : `deploy/hetzner-cloud-init.yaml` (pare-feu, SSH par clé, fail2ban, mises à jour automatiques), `deploy/install.sh` (Docker, swap, secrets générés, sauvegarde quotidienne), surcouche `deploy/docker-compose.prod.yml` avec Caddy (HTTPS automatique, HSTS), guide `docs/guides/deploiement-hetzner.md`.
+- `deploy/oracle-cloud-init.yaml` : variante Oracle Cloud (Always Free), pare-feu iptables des images Oracle.
 - `DJANGO_BEHIND_HTTPS_PROXY` : cookies sécurisés et prise en compte de `X-Forwarded-Proto` derrière le proxy HTTPS.
 
 ### Corrigé
+- Carte du tableau de bord : les tuiles OpenStreetMap étaient refusées en production (« Access blocked ») car aucun `Referer` n'était envoyé (`Referrer-Policy: same-origin`). Politique passée à `strict-origin-when-cross-origin` (Caddy, Django, couche Leaflet) et attribution conforme.
 - `DEMO_PASSWORD=` vide dans `.env` ne désactivait pas les comptes de démonstration (la valeur par défaut `demo-2026` était reprise).
 
 ### Modifié

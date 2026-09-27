@@ -30,9 +30,11 @@ export default function MapView() {
   useEffect(() => {
     if (!data || !el.current) return;
     const map = L.map(el.current, { zoomControl: true, attributionControl: true });
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    // OSM tile usage policy: tile requests must carry a Referer (our origin) and the attribution must link to the copyright page.
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
-      attribution: "© OpenStreetMap",
+      referrerPolicy: "strict-origin-when-cross-origin",
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>',
     }).addTo(map);
     const pts: L.LatLngExpression[] = [];
     const text = (s: string) => {

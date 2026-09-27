@@ -29,7 +29,7 @@ if env_bool("DJANGO_BEHIND_HTTPS_PROXY", False):
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_REFERRER_POLICY = "same-origin"
+    SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"  # OSM tiles need a Referer
 
 INSTALLED_APPS = [
     "django.contrib.admin",

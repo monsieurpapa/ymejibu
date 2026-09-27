@@ -8,7 +8,8 @@
 	header {
 		Strict-Transport-Security "max-age=31536000"
 		X-Content-Type-Options "nosniff"
-		Referrer-Policy "same-origin"
+		# OSM tiles are refused without a Referer: send only the origin cross-site.
+		Referrer-Policy "strict-origin-when-cross-origin"
 		-Server
 	}
 	reverse_proxy web:80
