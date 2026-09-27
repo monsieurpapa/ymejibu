@@ -11,7 +11,11 @@ Toutes les modifications notables sont consignées ici. Format : [Keep a Changel
 - Script `scripts/sauvegarde.sh` (base + photos).
 - Intégration continue GitHub Actions (tests backend, documentation générée, compilation frontend).
 
+- Interface : système de couleurs par type d'action (bleu = principal, vert = valider/enregistrer, rouge = rejeter/supprimer, orange = en attente), icônes par type de fiche et de maintenance (urgente, corrective, préventive, routine, support), mouvements de stock et états des fiches (bibliothèque `lucide-react`).
+- Interface : barre d'application, écran d'accueil groupé (relevés, pannes, préventif), en-tête coloré des fiches, messages de confirmation, squelettes de chargement, onglets animés, transitions de page (View Transitions) ; animations désactivées si le système demande moins de mouvement. Contrastes vérifiés ≥ 4,5:1 en thème clair et sombre.
+
 ### Modifié
+- Tableau de bord : le lien de retour s'appelle « Retour aux fiches terrain ».
 - Les codes d'articles de stock sont préfixés par le site (`GO-ART-001`) pour permettre plusieurs réseaux.
 
 ## [0.1.0] — 2026-09-27

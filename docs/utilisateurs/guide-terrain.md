@@ -13,8 +13,13 @@ Après cette première connexion, l'application **fonctionne sans réseau**.
 ## 2. L'écran d'accueil
 
 - **Barre du haut** : « En ligne » ou « Hors ligne », nombre de fiches **en attente**, dernier envoi, bouton **Envoyer**.
-- **Nouvelle fiche** : seulement les fiches autorisées pour votre poste.
-- **Mes fiches** : toutes les fiches du téléphone et leur état.
+- **Nouvelle fiche** : seulement les fiches autorisées pour votre poste, rangées en trois groupes, chacun avec sa couleur et son icône :
+  - **Relevés journaliers** (bleu) : pompage (jauge), stockage (réservoir), réseau et bornes fontaines (réseau) ;
+  - **Pannes et interventions** (rouge, triangle d'alerte) ;
+  - **Maintenance préventive** (vert, bouclier) : la petite icône en bas à droite indique pompe, réservoir ou réseau.
+- **Mes fiches** : toutes les fiches du téléphone et leur état (étiquette colorée avec icône).
+
+Couleurs des boutons : **bleu** = action principale (envoyer, se connecter) ; **vert** = valider, enregistrer ; **rouge** = supprimer, rejeter, se déconnecter ; **orange** = fiches en attente d'être envoyées. Dans le rapport de panne, le type d'intervention choisi s'affiche en rouge (Maintenance Urgente, sirène) ou en orange (Maintenance Corrective, clé).
 
 | État | Signification | Que faire |
 |---|---|---|

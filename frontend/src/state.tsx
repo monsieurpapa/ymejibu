@@ -1,8 +1,14 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { loadToken, refreshReference, setToken } from "./lib/api";
 import { clearAll, kvGet, onOutboxChange, outboxAll } from "./lib/db";
 import { isOnline, startAutoSync, syncNow, type SyncSummary } from "./lib/sync";
 import type { Me, OutboxItem, Reference } from "./lib/types";
+
+export interface Toast {
+  id: number;
+  text: string;
+  tone: "green" | "red" | "amber" | "blue";
+}
 
 interface AppState {
   ready: boolean;
@@ -13,6 +19,8 @@ interface AppState {
   lastSync: string | null;
   lastSummary: SyncSummary | null;
   syncing: boolean;
+  toast: Toast | null;
+  notify: (text: string, tone?: Toast["tone"]) => void;
   setMe: (m: Me | null) => void;
   sync: () => Promise<void>;
   reloadReference: () => Promise<void>;
@@ -31,6 +39,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [lastSync, setLastSync] = useState<string | null>(null);
   const [lastSummary, setLastSummary] = useState<SyncSummary | null>(null);
   const [syncing, setSyncing] = useState(false);
+  const [toast, setToast] = useState<Toast | null>(null);
+  const toastTimer = useRef<number | undefined>(undefined);
+
+  const notify = useCallback((text: string, tone: Toast["tone"] = "green") => {
+    window.clearTimeout(toastTimer.current);
+    setToast({ id: Date.now(), text, tone });
+    toastTimer.current = window.setTimeout(() => setToast(null), 3500);
+  }, []);
 
   const refreshOutbox = useCallback(async () => {
     setOutbox(await outboxAll());
@@ -53,12 +69,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const sync = useCallback(async () => {
     setSyncing(true);
     try {
-      setLastSummary(await syncNow());
+      const s = await syncNow();
+      setLastSummary(s);
+      // Wording avoids the status labels ("Envoyée", "En attente d'envoi") so lists stay unambiguous.
+      if (s.sent > 0) notify(`${s.sent} fiche(s) transmise(s) au serveur`, "green");
+      if (s.conflicts + s.invalid > 0) notify(`${s.conflicts + s.invalid} fiche(s) à corriger`, "red");
     } finally {
       setSyncing(false);
       await refreshOutbox();
     }
-  }, [refreshOutbox]);
+  }, [refreshOutbox, notify]);
 
   useEffect(() => {
     (async () => {
@@ -88,10 +108,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       reloadReference();
       startAutoSync((s) => {
         setLastSummary(s);
+        if (s.sent > 0) notify(`${s.sent} fiche(s) transmise(s) au serveur`, "green");
         refreshOutbox();
       });
     }
-  }, [me, reloadReference, refreshOutbox]);
+  }, [me, reloadReference, refreshOutbox, notify]);
 
   const logout = useCallback(async () => {
     const pending = (await outboxAll()).filter((i) => i.status !== "synced");
@@ -103,7 +124,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <Ctx.Provider value={{ ready, me, ref, online, outbox, lastSync, lastSummary, syncing, setMe, sync, reloadReference, logout }}>
+    <Ctx.Provider value={{ ready, me, ref, online, outbox, lastSync, lastSummary, syncing, toast, notify, setMe, sync, reloadReference, logout }}>
       {children}
     </Ctx.Provider>
   );

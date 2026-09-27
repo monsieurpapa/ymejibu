@@ -1,4 +1,6 @@
+import { Activity, ChartColumn, CircleCheck, CircleX, Droplet, Droplets, FlaskConical, Gauge, Info, ShieldCheck, Table2, TriangleAlert, Wallet, Wrench, Zap, type LucideIcon } from "lucide-react";
 import { HBars, LineChart } from "../charts/LineChart";
+import { IconBadge, type Tone } from "../ui/meta";
 import { fmt, type FmtKey } from "./format";
 
 export interface KpiMonth {
@@ -19,26 +21,28 @@ interface KpiDef {
   f: FmtKey;
   target?: { value: number; label: string; better: "up" | "down" };
   help: string;
+  icon: LucideIcon;
+  tone: Tone;
 }
 
 // Default targets: to be confirmed by the Responsable technique (see README).
 export const KPIS: KpiDef[] = [
-  { key: "availability", title: "Disponibilité du réseau", f: "pct", target: { value: 0.95, label: "cible 95 %", better: "up" },
+  { key: "availability", icon: Activity, tone: "blue", title: "Disponibilité du réseau", f: "pct", target: { value: 0.95, label: "cible 95 %", better: "up" },
     help: "(heures du mois − heures d'arrêt) / heures du mois" },
-  { key: "efficiency", title: "Rendement du réseau", f: "pct", target: { value: 0.8, label: "cible 80 %", better: "up" },
+  { key: "efficiency", icon: Droplets, tone: "teal", title: "Rendement du réseau", f: "pct", target: { value: 0.8, label: "cible 80 %", better: "up" },
     help: "eau facturée / eau introduite" },
-  { key: "nrw_m3", title: "Eau non facturée", f: "m3", help: "eau introduite − eau facturée" },
-  { key: "repair_rate", title: "Taux de réparation des pannes", f: "pct", target: { value: 0.9, label: "cible 90 %", better: "up" },
+  { key: "nrw_m3", icon: Droplet, tone: "orange", title: "Eau non facturée", f: "m3", help: "eau introduite − eau facturée" },
+  { key: "repair_rate", icon: Wrench, tone: "orange", title: "Taux de réparation des pannes", f: "pct", target: { value: 0.9, label: "cible 90 %", better: "up" },
     help: "pannes clôturées / pannes signalées (registre des pannes)" },
-  { key: "pm_rate", title: "Taux de maintenance préventive", f: "pct", target: { value: 0.9, label: "cible 90 %", better: "up" },
+  { key: "pm_rate", icon: ShieldCheck, tone: "green", title: "Taux de maintenance préventive", f: "pct", target: { value: 0.9, label: "cible 90 %", better: "up" },
     help: "ordres de travail préventifs réalisés / planifiés" },
-  { key: "quality_rate", title: "Conformité de la qualité de l'eau", f: "pct", target: { value: 0.95, label: "cible 95 %", better: "up" },
+  { key: "quality_rate", icon: FlaskConical, tone: "violet", title: "Conformité de la qualité de l'eau", f: "pct", target: { value: 0.95, label: "cible 95 %", better: "up" },
     help: "mesures conformes / mesures (chlore résiduel, turbidité, laboratoire)" },
-  { key: "energy_cost_per_m3", title: "Coût énergétique par m³", f: "usd3", help: "(kWh × tarif + litres × prix) / m³ pompés" },
-  { key: "kwh_per_m3", title: "Intensité électrique", f: "dec3", help: "kWh / m³ pompés" },
-  { key: "budget_variance", title: "Écart budgétaire", f: "usd", target: { value: 0, label: "budget", better: "down" },
+  { key: "energy_cost_per_m3", icon: Zap, tone: "amber", title: "Coût énergétique par m³", f: "usd3", help: "(kWh × tarif + litres × prix) / m³ pompés" },
+  { key: "kwh_per_m3", icon: Gauge, tone: "amber", title: "Intensité électrique", f: "dec3", help: "kWh / m³ pompés" },
+  { key: "budget_variance", icon: Wallet, tone: "slate", title: "Écart budgétaire", f: "usd", target: { value: 0, label: "budget", better: "down" },
     help: "dépenses réelles − budget prévu (négatif = sous le budget)" },
-  { key: "incidents_reported", title: "Pannes signalées", f: "int", help: "nombre de pannes par mois" },
+  { key: "incidents_reported", icon: TriangleAlert, tone: "red", title: "Pannes signalées", f: "int", help: "nombre de pannes par mois" },
 ];
 
 function latest(months: KpiMonth[], key: string) {
@@ -57,8 +61,11 @@ function Card({ def, data }: { def: KpiDef; data: KpiResult }) {
   return (
     <article className="kpi card" aria-labelledby={`kpi-${def.key}`}>
       <header>
-        <h3 id={`kpi-${def.key}`}>{def.title}</h3>
-        <p className="muted small">{def.help}</p>
+        <IconBadge icon={def.icon} tone={def.tone} />
+        <div>
+          <h3 id={`kpi-${def.key}`}>{def.title}</h3>
+          <p className="muted small">{def.help}</p>
+        </div>
       </header>
       {last ? (
         <div className="kpi-head">
@@ -68,7 +75,10 @@ function Card({ def, data }: { def: KpiDef; data: KpiResult }) {
             {src ? ` · ${src === "historique" ? "historique Excel" : "fiches terrain"}` : ""}
           </span>
           {ok !== null && (
-            <span className={`tag ${ok ? "good" : "critical"}`}>{ok ? "✓ cible atteinte" : "✗ sous la cible"}</span>
+            <span className={`tag ${ok ? "good" : "critical"}`}>
+              {ok ? <CircleCheck size={14} aria-hidden="true" /> : <CircleX size={14} aria-hidden="true" />}
+              {ok ? "cible atteinte" : "sous la cible"}
+            </span>
           )}
         </div>
       ) : (
@@ -129,19 +139,20 @@ export default function KpiView({ data }: { data: KpiResult }) {
     <>
       {current && (
         <p className="banner neutral small">
-          {current.label} : {current.coverage.pump_reading_days} jour(s) de relevés de pompage sur {current.coverage.days}. Les valeurs du mois
-          en cours sont partielles.
+          <Info size={18} aria-hidden="true" />
+          <span className="banner-body">{current.label} : {current.coverage.pump_reading_days} jour(s) de relevés de pompage sur {current.coverage.days}. Les valeurs du mois
+          en cours sont partielles.</span>
         </p>
       )}
       <div className="kpi-grid">
         {KPIS.map((k) => <Card key={k.key} def={k} data={data} />)}
       </div>
       <section className="card">
-        <h3>Causes des pannes {data.year}</h3>
+        <h2 style={{ marginTop: 0 }}><IconBadge icon={ChartColumn} tone="red" size="sm" />Causes des pannes {data.year}</h2>
         {causes.length ? <HBars items={causes} format={fmt.int} title="Nombre de pannes par cause" /> : <p className="muted">Aucune cause enregistrée.</p>}
       </section>
       <section className="card">
-        <h3>Tableau mensuel</h3>
+        <h2 style={{ marginTop: 0 }}><IconBadge icon={Table2} tone="blue" size="sm" />Tableau mensuel</h2>
         <p className="muted small">« h » = historique Excel (mois antérieurs à l'application) ; vide = pas de donnée.</p>
         <div className="table-scroll">
           <table className="data">

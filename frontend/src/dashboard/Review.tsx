@@ -1,4 +1,8 @@
+import { Check, ChevronDown, CircleCheck, CircleX, Clock, Inbox, Undo2, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { FormIcon } from "../pages/Home";
+import { useApp } from "../state";
+import { Chip, MAINTENANCE_META, type Meta } from "../ui/meta";
 import { api } from "../lib/api";
 
 interface Sub {
@@ -24,11 +28,18 @@ function flatten(p: Record<string, any>) {
   return out;
 }
 
+const REVIEW_STATUS: Record<string, Meta> = {
+  SUBMITTED: { icon: Clock, tone: "amber", label: "À valider" },
+  VALIDATED: { icon: CircleCheck, tone: "green", label: "Validée" },
+  REJECTED: { icon: CircleX, tone: "red", label: "Rejetée" },
+};
+
 export default function Review({ canWrite }: { canWrite: boolean }) {
   const [subs, setSubs] = useState<Sub[]>([]);
   const [open, setOpen] = useState<string | null>(null);
   const [status, setStatus] = useState("SUBMITTED");
   const [msg, setMsg] = useState("");
+  const { notify } = useApp();
 
   const load = () => api<Sub[]>(`/api/submissions/?status=${status}&limit=100`).then(setSubs).catch((e) => setMsg(e.message));
   useEffect(() => {
@@ -36,9 +47,18 @@ export default function Review({ canWrite }: { canWrite: boolean }) {
   }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const act = async (id: string, next: string) => {
-    await api(`/api/submissions/${id}/`, { method: "PATCH", json: { status: next } });
-    setMsg(next === "VALIDATED" ? "Fiche validée." : "Fiche rejetée : ses données sont retirées des indicateurs.");
-    load();
+    try {
+      await api(`/api/submissions/${id}/`, { method: "PATCH", json: { status: next } });
+      setMsg("");
+      notify(
+        next === "VALIDATED" ? "Fiche validée." : next === "REJECTED" ? "Fiche rejetée : ses données sont retirées des indicateurs." : "Fiche remise à valider.",
+        next === "REJECTED" ? "red" : "green",
+      );
+      setOpen(null);
+      load();
+    } catch (e: any) {
+      setMsg(e.message);
+    }
   };
 
   return (
@@ -50,15 +70,24 @@ export default function Review({ canWrite }: { canWrite: boolean }) {
           <option value="VALIDATED">Validées</option>
           <option value="REJECTED">Rejetées</option>
         </select>
-        <span className="muted small" aria-live="polite">{msg}</span>
+        <span className="error small" aria-live="polite">{msg}</span>
       </div>
-      {subs.length === 0 && <p className="muted">Aucune fiche.</p>}
+      {subs.length === 0 && <div className="empty"><Inbox size={32} aria-hidden="true" /><span>Aucune fiche.</span></div>}
       <ul className="list">
         {subs.map((s) => (
           <li key={s.id} className="list-item column">
             <button className="list-main as-button" onClick={() => setOpen(open === s.id ? null : s.id)} aria-expanded={open === s.id}>
-              <span className="list-title">{s.form_label} · {s.asset || s.zone || ""} · {new Date(s.date).toLocaleDateString("fr-FR")}</span>
-              <span className="muted small">{s.submitted_by_name} · v{s.version}{s.payload?.general?.number ? ` · ${s.payload.general.number}` : ""}</span>
+              <FormIcon type={s.form_type} />
+              <span className="list-text" style={{ flex: 1 }}>
+                <span className="list-title">{s.form_label} · {s.asset || s.zone || ""} · {new Date(s.date).toLocaleDateString("fr-FR")}</span>
+                <span className="muted small">{s.submitted_by_name} · v{s.version}{s.payload?.general?.number ? ` · ${s.payload.general.number}` : ""}</span>
+                <span className="row-inline" style={{ marginTop: 0, gap: 6 }}>
+                  {REVIEW_STATUS[s.status] && <Chip meta={REVIEW_STATUS[s.status]} />}
+                  {MAINTENANCE_META[s.payload?.intervention?.maintenance_type] && <Chip meta={MAINTENANCE_META[s.payload.intervention.maintenance_type]} />}
+                  {s.form_type.startsWith("MP_") && <Chip meta={MAINTENANCE_META.PREVENTIVE} />}
+                </span>
+              </span>
+              <ChevronDown size={20} aria-hidden="true" style={{ transition: "transform .2s", transform: open === s.id ? "rotate(180deg)" : "none", color: "var(--muted)" }} />
             </button>
             {open === s.id && (
               <div className="detail">
@@ -69,9 +98,15 @@ export default function Review({ canWrite }: { canWrite: boolean }) {
                 </dl>
                 {canWrite && (
                   <div className="row-inline">
-                    {s.status !== "VALIDATED" && <button className="btn primary" onClick={() => act(s.id, "VALIDATED")}>Valider</button>}
-                    {s.status !== "REJECTED" && <button className="btn secondary danger" onClick={() => act(s.id, "REJECTED")}>Rejeter</button>}
-                    {s.status === "REJECTED" && <button className="btn secondary" onClick={() => act(s.id, "SUBMITTED")}>Rétablir</button>}
+                    {s.status !== "VALIDATED" && (
+                      <button className="btn success" onClick={() => act(s.id, "VALIDATED")}><Check size={18} aria-hidden="true" />Valider</button>
+                    )}
+                    {s.status !== "REJECTED" && (
+                      <button className="btn outline-danger" onClick={() => act(s.id, "REJECTED")}><X size={18} aria-hidden="true" />Rejeter</button>
+                    )}
+                    {s.status === "REJECTED" && (
+                      <button className="btn secondary" onClick={() => act(s.id, "SUBMITTED")}><Undo2 size={18} aria-hidden="true" />Rétablir</button>
+                    )}
                   </div>
                 )}
               </div>

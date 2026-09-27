@@ -1,4 +1,7 @@
+import { CircleCheck, CircleX, History, PackageOpen, Save, Search, TriangleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useApp } from "../state";
+import { IconBadge, MOVEMENT_META } from "../ui/meta";
 import { api } from "../lib/api";
 import { todayISO } from "../lib/forms";
 
@@ -12,6 +15,8 @@ export default function StockView({ canWrite }: { canWrite: boolean }) {
   const [form, setForm] = useState({ item: "", kind: "IN", quantity: "", date: todayISO(), reference: "" });
   const [msg, setMsg] = useState("");
   const [filter, setFilter] = useState("");
+  const [saving, setSaving] = useState(false);
+  const { notify } = useApp();
 
   const load = () => {
     api<Item[]>("/api/stock/items/").then(setItems);
@@ -27,7 +32,10 @@ export default function StockView({ canWrite }: { canWrite: boolean }) {
     <>
       {alerts.length > 0 && (
         <section className="banner critical" role="alert">
-          <strong>{alerts.length} article(s) sous le seuil :</strong> {alerts.map((a) => `${a.name} (${a.balance ?? 0} ${a.unit})`).join(" ; ")}
+          <TriangleAlert size={20} aria-hidden="true" />
+          <span className="banner-body">
+            <strong>{alerts.length} article(s) sous le seuil :</strong> {alerts.map((a) => `${a.name} (${a.balance ?? 0} ${a.unit})`).join(" ; ")}
+          </span>
         </section>
       )}
       {canWrite && (
@@ -35,17 +43,21 @@ export default function StockView({ canWrite }: { canWrite: boolean }) {
           className="card toolbar wrap"
           onSubmit={async (e) => {
             e.preventDefault();
+            setSaving(true);
             try {
               await api("/api/stock/movements/", { method: "POST", json: form });
-              setMsg("Mouvement enregistré.");
+              setMsg("");
+              notify(`Mouvement enregistré : ${MOVEMENT_META[form.kind]?.label ?? form.kind}`, "green");
               setForm({ ...form, quantity: "", reference: "" });
               load();
             } catch (err: any) {
               setMsg(JSON.stringify(err.body || err.message));
+            } finally {
+              setSaving(false);
             }
           }}
         >
-          <h3 className="w100">Enregistrer un mouvement</h3>
+          <h2 className="w100" style={{ margin: 0 }}><IconBadge icon={(MOVEMENT_META[form.kind] ?? MOVEMENT_META.IN).icon} tone={(MOVEMENT_META[form.kind] ?? MOVEMENT_META.IN).tone} size="sm" />Enregistrer un mouvement</h2>
           <select aria-label="Article" required value={form.item} onChange={(e) => setForm({ ...form, item: e.target.value })}>
             <option value="">— Article —</option>
             {items.map((i) => <option key={i.code} value={i.code}>{i.name}</option>)}
@@ -61,14 +73,17 @@ export default function StockView({ canWrite }: { canWrite: boolean }) {
           <input aria-label="Date" type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
           <input aria-label="Référence" placeholder="Référence (bon, fournisseur…)" value={form.reference}
             onChange={(e) => setForm({ ...form, reference: e.target.value })} />
-          <button className="btn primary">Enregistrer</button>
-          <span className="muted small" aria-live="polite">{msg}</span>
+          <button className="btn success" disabled={saving}><Save size={18} aria-hidden="true" />Enregistrer</button>
+          <span className="error small" aria-live="polite">{msg}</span>
         </form>
       )}
       <section className="card">
         <div className="toolbar">
-          <h3>Articles</h3>
-          <input aria-label="Filtrer" placeholder="Filtrer…" value={filter} onChange={(e) => setFilter(e.target.value)} />
+          <h2 style={{ margin: "0 auto 0 0" }}><IconBadge icon={PackageOpen} tone="teal" size="sm" />Articles</h2>
+          <span style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
+            <Search size={16} aria-hidden="true" style={{ position: "absolute", left: 12, color: "var(--muted)" }} />
+            <input aria-label="Filtrer" placeholder="Filtrer…" value={filter} onChange={(e) => setFilter(e.target.value)} style={{ paddingLeft: 36 }} />
+          </span>
         </div>
         <p className="muted small">Solde = somme des mouvements. Les quantités d'origine du fichier Excel étaient des valeurs de test : elles n'ont pas été importées (faire un inventaire initial).</p>
         <div className="table-scroll">
@@ -81,7 +96,7 @@ export default function StockView({ canWrite }: { canWrite: boolean }) {
                   <td>{i.group || i.category_label}</td>
                   <td>{i.balance === null ? "—" : `${i.balance} ${i.unit}`}</td>
                   <td>{i.min_threshold ?? "—"}</td>
-                  <td>{i.alert ? <span className="tag critical">✗ sous le seuil</span> : i.alert === false ? <span className="tag good">✓ OK</span> : <span className="muted">seuil non défini</span>}</td>
+                  <td>{i.alert ? <span className="tag critical"><CircleX size={13} aria-hidden="true" />sous le seuil</span> : i.alert === false ? <span className="tag good"><CircleCheck size={13} aria-hidden="true" />OK</span> : <span className="muted">seuil non défini</span>}</td>
                 </tr>
               ))}
             </tbody>
@@ -89,12 +104,18 @@ export default function StockView({ canWrite }: { canWrite: boolean }) {
         </div>
       </section>
       <section className="card">
-        <h3>Derniers mouvements</h3>
+        <h2 style={{ marginTop: 0 }}><IconBadge icon={History} tone="slate" size="sm" />Derniers mouvements</h2>
         {moves.length === 0 && <p className="muted">Aucun mouvement.</p>}
         <ul className="list">
           {moves.map((m) => (
             <li key={m.id} className="list-item">
-              <span>{new Date(m.date).toLocaleDateString("fr-FR")} · {m.kind_label} · {m.quantity} · {name(m.item)}</span>
+              <span className="list-main" style={{ minHeight: 52 }}>
+                {MOVEMENT_META[m.kind] && <IconBadge icon={MOVEMENT_META[m.kind].icon} tone={MOVEMENT_META[m.kind].tone} size="sm" />}
+                <span className="list-text">
+                  <span className="list-title">{name(m.item)} · {m.quantity}</span>
+                  <span className="muted small">{new Date(m.date).toLocaleDateString("fr-FR")} · {m.kind_label}</span>
+                </span>
+              </span>
               <span className="muted small">{m.incident_number || m.reference}</span>
             </li>
           ))}

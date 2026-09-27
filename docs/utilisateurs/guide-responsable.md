@@ -24,8 +24,8 @@ Définitions exactes : [../reference/kpi.md](../reference/kpi.md).
 Onglet **Fiches** : les fiches envoyées par les agents.
 
 - Ouvrir une fiche pour voir son contenu.
-- **Valider** : la fiche devient non modifiable par l'agent.
-- **Rejeter** : ses valeurs sont **retirées immédiatement** des indicateurs, du stock et des dépenses (ex. un débit de 1 800 au lieu de 180). **Rétablir** les remet.
+- **Valider** (bouton vert, coche) : la fiche devient non modifiable par l'agent.
+- **Rejeter** (bouton rouge, croix) : ses valeurs sont **retirées immédiatement** des indicateurs, du stock et des dépenses (ex. un débit de 1 800 au lieu de 180). **Rétablir** les remet.
 
 Bonne pratique : valider chaque semaine ; rejeter plutôt que laisser une valeur aberrante.
 

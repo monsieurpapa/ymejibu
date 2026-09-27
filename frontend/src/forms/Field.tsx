@@ -1,4 +1,6 @@
+import { Camera, CircleAlert, Crosshair, LoaderCircle, MapPin, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { ENUM_TONES } from "../ui/meta";
 import { compressPhoto, assetByCode, getPath, thresholdLabel } from "../lib/forms";
 import type { FieldDef, Payload, Reference } from "../lib/types";
 
@@ -27,7 +29,8 @@ export function Label({ spec, htmlFor, unit }: { spec: FieldDef; htmlFor: string
   );
 }
 
-function Segmented({ id, options, value, onChange }: { id: string; options: { value: string; label: string }[]; value: any; onChange: (v: any) => void }) {
+function Segmented({ id, enumKey, options, value, onChange }: { id: string; enumKey?: string; options: { value: string; label: string }[]; value: any; onChange: (v: any) => void }) {
+  const tones = (enumKey && ENUM_TONES[enumKey]) || {};
   return (
     <div className="segmented" role="radiogroup" id={id}>
       {options.map((o) => (
@@ -36,9 +39,13 @@ function Segmented({ id, options, value, onChange }: { id: string; options: { va
           key={o.value}
           role="radio"
           aria-checked={value === o.value}
-          className={value === o.value ? "seg on" : "seg"}
+          className={`seg${value === o.value ? " on" : ""}${tones[o.value] ? ` tone-${tones[o.value].tone}` : ""}`}
           onClick={() => onChange(value === o.value ? "" : o.value)}
         >
+          {(() => {
+            const Icon = tones[o.value]?.icon;
+            return Icon ? <Icon size={16} aria-hidden="true" /> : null;
+          })()}
           {o.label}
         </button>
       ))}
@@ -90,7 +97,7 @@ export function FieldInput({ id, spec, value, onChange, ref_, payload, error, ro
           </output>
         );
       } else if (options.length <= 3) {
-        input = <Segmented id={id} options={options} value={value} onChange={onChange} />;
+        input = <Segmented id={id} enumKey={spec.enum} options={options} value={value} onChange={onChange} />;
       } else {
         input = (
           <select {...common} value={value ?? ""} onChange={(e) => onChange(e.target.value)}>
@@ -176,6 +183,7 @@ export function FieldInput({ id, spec, value, onChange, ref_, payload, error, ro
               );
             }}
           >
+            {busy ? <LoaderCircle size={18} className="spin" aria-hidden="true" /> : value ? <Crosshair size={18} aria-hidden="true" /> : <MapPin size={18} aria-hidden="true" />}
             {busy ? "Recherche…" : value ? "Relever à nouveau" : "Relever la position"}
           </button>
           <span className="muted">
@@ -192,12 +200,15 @@ export function FieldInput({ id, spec, value, onChange, ref_, payload, error, ro
             {photos.map((p, i) => (
               <figure key={i} className="thumb">
                 <img src={typeof p === "string" ? p : p.url} alt={`Photo ${i + 1}`} />
-                <button type="button" className="btn link" onClick={() => onChange(photos.filter((_, k) => k !== i))}>Retirer</button>
+                <button type="button" className="btn link danger small" onClick={() => onChange(photos.filter((_, k) => k !== i))}>
+                  <Trash2 size={15} aria-hidden="true" />Retirer
+                </button>
               </figure>
             ))}
           </div>
           {photos.length < 3 && (
             <label className="btn secondary file">
+              {busy ? <LoaderCircle size={18} className="spin" aria-hidden="true" /> : <Camera size={18} aria-hidden="true" />}
               {busy ? "Compression…" : "Ajouter une photo"}
               <input
                 type="file"
@@ -255,7 +266,7 @@ export function FieldInput({ id, spec, value, onChange, ref_, payload, error, ro
       {input}
       {spec.note && spec.added && <p className="hint">{spec.note}</p>}
       {error && (
-        <p className="error" id={`${id}-err`} role="alert">{error}</p>
+        <p className="error" id={`${id}-err`} role="alert"><CircleAlert size={16} aria-hidden="true" />{error}</p>
       )}
     </div>
   );

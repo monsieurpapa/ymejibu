@@ -1,3 +1,4 @@
+import { ArrowLeft, CircleAlert, CloudUpload, GitMerge, LoaderCircle, RotateCw, Save, Send, ServerCog } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { FormRenderer, withComputed } from "../forms/FormRenderer";
@@ -6,7 +7,8 @@ import { emptyPayload, summaryTitle, todayISO, uuid, validate } from "../lib/for
 import { keepMine, takeServer } from "../lib/sync";
 import type { OutboxItem, Payload } from "../lib/types";
 import { useApp } from "../state";
-import { StatusTag } from "./Home";
+import { FormIcon, StatusTag } from "./Home";
+import { Chip, FORM_META, MAINTENANCE_META } from "../ui/meta";
 
 function diffSections(a: Payload, b: Payload) {
   const out: string[] = [];
@@ -19,7 +21,7 @@ function diffSections(a: Payload, b: Payload) {
 
 export default function FormPage() {
   const { id, type } = useParams();
-  const { ref, me, sync, online } = useApp();
+  const { ref, me, sync, online, notify } = useApp();
   const nav = useNavigate();
   const [item, setItem] = useState<OutboxItem | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -58,7 +60,12 @@ export default function FormPage() {
     })();
   }, [id, type, ref, me, nav]);
 
-  if (!ref || !item || !form) return <main className="page"><p>Chargement…</p></main>;
+  if (!ref || !item || !form)
+    return (
+      <main className="page">
+        <p className="muted" style={{ display: "flex", alignItems: "center", gap: 8 }}><LoaderCircle size={18} className="spin" aria-hidden="true" />Chargement…</p>
+      </main>
+    );
   const locked = item.status === "conflict";
 
   const change = (payload: Payload) => {
@@ -83,7 +90,7 @@ export default function FormPage() {
         }
       }
       await outboxPut(next);
-      setSaved(`Brouillon enregistré sur le téléphone à ${new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`);
+      setSaved(`Brouillon enregistré à ${new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`);
     }, 400);
   };
 
@@ -101,43 +108,55 @@ export default function FormPage() {
     window.clearTimeout(timer.current);
     const fresh = await outboxGet(item.id);
     await outboxPut({ ...item, version: fresh?.version ?? item.version, status: "queued", errors: [], updated_at: new Date().toISOString(), title: summaryTitle(ref, form, item.payload) });
+    notify(online ? "Fiche validée, transmission en cours" : "Fiche validée : elle partira au retour du réseau", online ? "blue" : "amber");
     if (online) sync();
-    nav("/");
+    nav("/", { viewTransition: true });
   };
 
+  const maintenance = MAINTENANCE_META[item.payload.intervention?.maintenance_type as string]
+    ?? (form.type.startsWith("MP_") ? MAINTENANCE_META.PREVENTIVE : undefined);
   const serverErrors = ["invalid", "forbidden", "error"].includes(item.status) ? item.errors ?? [] : [];
 
   return (
     <main className="page form-page">
-      <header className="page-head">
-        <div>
-          <Link to="/" className="back">← Retour</Link>
+      <Link to="/" className="back" viewTransition><ArrowLeft size={18} aria-hidden="true" />Retour</Link>
+      <header className={`form-hero tone-${FORM_META[form.type]?.tone ?? "slate"}`}>
+        <FormIcon type={form.type} size="lg" />
+        <div style={{ minWidth: 0 }}>
           <h1>{form.title}</h1>
-          <p className="muted small">
-            <StatusTag status={item.status} /> {item.payload.general?.number ? ` · ${item.payload.general.number}` : ""}
-          </p>
+          <div className="sub">
+            <StatusTag status={item.status} />
+            {maintenance && <Chip meta={maintenance} />}
+            {item.payload.general?.number && <span className="muted small">{item.payload.general.number}</span>}
+          </div>
         </div>
       </header>
 
       {locked && item.server && (
         <div className="banner critical" role="alert" data-testid="conflict-banner">
+          <GitMerge size={20} aria-hidden="true" />
+          <div className="banner-body">
           <strong>Conflit :</strong> cette fiche a été modifiée sur le serveur ({item.server.submitted_by || "autre utilisateur"},
           version {item.server.version}) pendant que vous travailliez hors ligne.
           <br />Parties différentes : {diffSections(item.payload, item.server.payload).join(", ") || "aucune"}.
           <div className="row-inline">
             <button className="btn primary" onClick={async () => { await keepMine(item.id); setItem((await outboxGet(item.id))!); sync(); }}>
-              Garder ma version
+              <CloudUpload size={18} aria-hidden="true" />Garder ma version
             </button>
             <button className="btn secondary" onClick={async () => { await takeServer(item.id); setItem((await outboxGet(item.id))!); }}>
-              Prendre la version du serveur
+              <ServerCog size={18} aria-hidden="true" />Prendre la version du serveur
             </button>
+          </div>
           </div>
         </div>
       )}
       {serverErrors.length > 0 && (
         <div className="banner critical" role="alert">
-          <strong>Le serveur a refusé la fiche :</strong>
-          <ul>{serverErrors.map((e, i) => <li key={i}>{e.field ? `${e.field} : ` : ""}{e.message}</li>)}</ul>
+          <CircleAlert size={20} aria-hidden="true" />
+          <div className="banner-body">
+            <strong>Le serveur a refusé la fiche :</strong>
+            <ul>{serverErrors.map((e, i) => <li key={i}>{e.field ? `${e.field} : ` : ""}{e.message}</li>)}</ul>
+          </div>
         </div>
       )}
 
@@ -146,13 +165,14 @@ export default function FormPage() {
       </fieldset>
 
       <div className="sticky-actions">
-        <span className="muted small" aria-live="polite">{saved}</span>
-        <button className="btn primary" onClick={submit} disabled={locked} data-testid="submit">
+        <span className="muted small saved-note" aria-live="polite">{saved && <Save size={15} aria-hidden="true" />}{saved}</span>
+        <button className="btn primary lg" onClick={submit} disabled={locked} data-testid="submit">
+          {item.status === "synced" ? <RotateCw size={18} aria-hidden="true" /> : <Send size={18} aria-hidden="true" />}
           {item.status === "synced" ? "Renvoyer" : "Valider et envoyer"}
         </button>
       </div>
       {Object.keys(errors).length > 0 && (
-        <p className="error" role="alert">{Object.keys(errors).length} champ(s) à corriger.</p>
+        <p className="error" role="alert"><CircleAlert size={16} aria-hidden="true" />{Object.keys(errors).length} champ(s) à corriger.</p>
       )}
       <p className="muted small">Source : {form.source}</p>
     </main>
