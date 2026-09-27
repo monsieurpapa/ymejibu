@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "corsheaders",
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
     "core",
     "ops",
     "stock",
@@ -117,6 +119,27 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ["core.permissions.RolePermission"],
     "DEFAULT_PAGINATION_CLASS": None,
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "API Yme Jibu E&M",
+    "DESCRIPTION": (
+        "API de la plateforme d'Exploitation & Maintenance du réseau d'eau Goma Ouest. "
+        "Authentification : en-tête `Authorization: Token <jeton>` obtenu par `POST /api/auth/login/`. "
+        "Toutes les données sont limitées au site de l'utilisateur ; les droits dépendent de son rôle (voir docs/reference/roles.md)."
+    ),
+    "VERSION": "0.1.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
+    "COMPONENT_SPLIT_REQUEST": True,
+    "ENUM_NAME_OVERRIDES": {
+        "StockMovementKindEnum": "stock.models.StockMovement.Kind",
+        "TariffKindEnum": "plan.models.Tariff.Kind",
+        "MaintenanceTypeEnum": "ops.models.MaintenanceType",
+    },
 }
 
 CORS_ALLOWED_ORIGINS = [o for o in env("CORS_ALLOWED_ORIGINS", "http://localhost:5173").split(",") if o]

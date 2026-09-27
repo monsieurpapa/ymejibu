@@ -3,6 +3,8 @@ from django.contrib import admin
 from django.http import JsonResponse
 from django.urls import include, path, re_path
 from django.views.static import serve
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from rest_framework.permissions import AllowAny
 from rest_framework.routers import DefaultRouter
 
 from core import api as core_api
@@ -42,6 +44,9 @@ def health(request):
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/health/", health),
+    path("api/schema/", SpectacularAPIView.as_view(permission_classes=[AllowAny]), name="schema"),
+    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema", permission_classes=[AllowAny]), name="swagger-ui"),
+    path("api/redoc/", SpectacularRedocView.as_view(url_name="schema", permission_classes=[AllowAny]), name="redoc"),
     path("api/auth/login/", core_views.login),
     path("api/me/", core_views.me),
     path("api/reference/", core_views.reference),

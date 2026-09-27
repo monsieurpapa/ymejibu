@@ -9,10 +9,13 @@ from django.core.files.base import ContentFile
 from django.db import InterfaceError, OperationalError, transaction
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_field
 from rest_framework import serializers
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 
+from core import schema as S
 from core.api import CodeRelatedField, SiteScopedViewSet, request_site
 from core.models import Asset, Node, Zone
 from core.permissions import ALL_ROLES, DASHBOARD_ROLES, FIELD_ROLES, MANAGERS, STAFF_ROLES, RolePermission, set_roles, user_role
@@ -49,6 +52,7 @@ class FormSubmissionSerializer(serializers.ModelSerializer):
         exclude = ["site"]
         read_only_fields = ["version", "source", "submitted_by", "derivation_errors", "form_type", "date", "payload"]
 
+    @extend_schema_field(serializers.CharField())
     def get_submitted_by_name(self, obj):
         u = obj.submitted_by
         if not u:
@@ -78,6 +82,7 @@ class IncidentSerializer(serializers.ModelSerializer):
         model = Incident
         exclude = ["site"]
 
+    @extend_schema_field(serializers.ListField(child=serializers.CharField()))
     def get_photos(self, obj):
         if not obj.submission_id:
             return []
@@ -353,6 +358,9 @@ def push_one(request, site, item):
     return {"id": str(sub.id), "status": result, "version": sub.version, "server": _serialize_sub(sub)}
 
 
+@extend_schema(tags=["Synchronisation"], request=S.SyncPushRequestSerializer, responses=S.SyncPushResponseSerializer,
+               summary="Envoyer les fiches en attente du téléphone",
+               description="Chaque fiche est traitée indépendamment ; une fiche refusée ne bloque pas les autres. Voir docs/adr/0002-offline-sync.md.")
 @api_view(["POST"])
 @permission_classes([RolePermission])
 def sync_push(request):
@@ -376,6 +384,8 @@ def sync_push(request):
 set_roles(sync_push, read=ALL_ROLES, write=FIELD_ROLES)
 
 
+@extend_schema(tags=["Synchronisation"], responses=S.SyncPullResponseSerializer, summary="Fiches de l'utilisateur modifiées sur le serveur",
+               parameters=[OpenApiParameter("since", str, description="Horodatage ISO 8601 ; par défaut les 30 derniers jours")])
 @api_view(["GET"])
 @permission_classes([RolePermission])
 def sync_pull(request):
@@ -393,6 +403,7 @@ def sync_pull(request):
                      "server_time": timezone.now().isoformat()})
 
 
+@extend_schema(tags=["Synchronisation"], responses=OpenApiTypes.OBJECT, summary="Définitions des 7 formulaires (shared/forms.fr.json)")
 @api_view(["GET"])
 @permission_classes([RolePermission])
 def forms_definitions(request):

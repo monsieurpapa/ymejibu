@@ -1,8 +1,11 @@
 from django.http import HttpResponse
 from django.utils import timezone
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
+from core import schema as S
 from core.api import request_site
 from core.models import Asset
 from core.permissions import DASHBOARD_ROLES, RolePermission, set_roles
@@ -20,6 +23,7 @@ def _year(request):
         return timezone.localdate().year
 
 
+@extend_schema(tags=["Indicateurs"], parameters=[OpenApiParameter("year", int, description="Année (par défaut : année en cours)")], responses=S.KpiYearSerializer, summary="KPI mensuels et annuels")
 @api_view(["GET"])
 @permission_classes([RolePermission])
 def kpis(request):
@@ -27,6 +31,8 @@ def kpis(request):
     return Response(to_json(compute_year(site, _year(request))))
 
 
+@extend_schema(tags=["Indicateurs"], parameters=[OpenApiParameter("year", int, description="Année (par défaut : année en cours)")], responses={(200, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"): OpenApiTypes.BINARY},
+               summary="Export XLSX au format de la feuille « O&M KPI »")
 @api_view(["GET"])
 @permission_classes([RolePermission])
 def export_xlsx(request):
@@ -38,6 +44,7 @@ def export_xlsx(request):
     return resp
 
 
+@extend_schema(tags=["Indicateurs"], parameters=[OpenApiParameter("year", int, description="Année (par défaut : année en cours)")], responses={(200, "text/csv"): OpenApiTypes.STR}, summary="Export CSV (séparateur ;)")
 @api_view(["GET"])
 @permission_classes([RolePermission])
 def export_csv(request):
@@ -52,6 +59,8 @@ def _f(v):
     return float(v) if v is not None else None
 
 
+@extend_schema(tags=["Tableau de bord"], responses=S.MapDataSerializer, summary="Actifs géolocalisés et pannes récentes",
+               parameters=[OpenApiParameter("days", int, description="Pannes des N derniers jours (défaut 90)")])
 @api_view(["GET"])
 @permission_classes([RolePermission])
 def map_data(request):
@@ -76,6 +85,7 @@ def map_data(request):
     return Response({"assets": assets, "incidents": incidents})
 
 
+@extend_schema(tags=["Tableau de bord"], responses=S.OverviewSerializer, summary="Compteurs d'en-tête")
 @api_view(["GET"])
 @permission_classes([RolePermission])
 def overview(request):

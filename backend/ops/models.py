@@ -88,9 +88,9 @@ class Record(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     site = models.ForeignKey(Site, on_delete=models.PROTECT, related_name="+")
-    source = models.CharField(max_length=10, choices=RecordSource.choices, default=RecordSource.APP)
-    source_ref = models.CharField(max_length=255, blank=True)
-    flags = models.JSONField(default=list, blank=True)
+    source = models.CharField(max_length=10, choices=RecordSource.choices, default=RecordSource.APP, help_text="Origine de l'enregistrement")
+    source_ref = models.CharField(max_length=255, blank=True, help_text="Origine Excel : fichier!feuille!cellule (import)")
+    flags = models.JSONField(default=list, blank=True, help_text="Codes du rapport qualité concernant cet enregistrement")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
