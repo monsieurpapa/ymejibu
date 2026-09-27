@@ -284,7 +284,7 @@ Stratégie détaillée : [tests.md](tests.md).
 | R6 | Cibles de KPI codées dans le frontend | Changement = redéploiement | Les déplacer en base (dette) |
 | R7 | Pas de limitation des tentatives de connexion | Attaque par force brute | Limiter au niveau du reverse proxy |
 | R8 | Carte dépendante d'OpenStreetMap en ligne | Carte vide hors réseau | Acceptable (tableau de bord au bureau) |
-| R9 | `docker compose up` non exécuté dans l'environnement de construction | Écart possible avec le natif | Vérifié en natif (PostgreSQL + gunicorn + nginx) ; à valider sur la machine cible |
+| R9 | Construction Docker lente sur une connexion faible (≈ 7 min, dont 6 pour `pip install`, mesurée le 2026-09-27 sur Docker Desktop) | Mises à jour longues | Construire les images ailleurs et les publier dans un registre ; `docker compose pull` sur le serveur |
 | R10 | Définitions de formulaires non versionnées par fiche | Un champ renommé casse l'affichage des anciennes fiches | Ne jamais renommer une clé ; en ajouter une nouvelle ([guide](guides/modifier-un-formulaire.md)) |
 
 ## 13. Glossaire

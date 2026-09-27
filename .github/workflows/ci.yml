@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: ymejibu
+          POSTGRES_USER: ymejibu
+          POSTGRES_PASSWORD: ymejibu
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U ymejibu" --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      POSTGRES_HOST: localhost
+      DJANGO_SECRET_KEY: ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+      - run: pip install -r requirements-dev.txt
+      - run: isort --check-only .
+      - run: python manage.py makemigrations --check --dry-run
+      # The Excel workbooks are not in Git: tests that need them are skipped here.
+      - run: python -m pytest -q
+      - name: Generated documentation is up to date
+        run: python manage.py gen_docs --check
+      - name: Form definitions are up to date
+        working-directory: .
+        run: python3 scripts/build_forms.py && git diff --exit-code shared/forms.fr.json
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build

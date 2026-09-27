@@ -3,11 +3,10 @@ from rest_framework import serializers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
+from .models import StockItem, StockMovement, balances
 from core import schema as S
 from core.api import CodeRelatedField, SiteScopedViewSet, request_site
 from core.permissions import DASHBOARD_ROLES, STOCK_ROLES, RolePermission, set_roles
-
-from .models import StockItem, StockMovement, balances
 
 
 class StockItemSerializer(serializers.ModelSerializer):

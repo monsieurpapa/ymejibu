@@ -5,13 +5,12 @@ from decimal import Decimal
 import pytest
 from django.utils import timezone
 
+from .conftest import TODAY
 from core.models import Asset
 from kpi.models import MonthlyAggregate
 from kpi.service import compute_year
 from ops.models import DailyReading, Expense, Incident, WaterQualityTest, WorkOrder
 from plan.models import MonthlyBudget
-
-from .conftest import TODAY
 
 pytestmark = pytest.mark.django_db
 

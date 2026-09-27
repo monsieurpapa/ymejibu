@@ -5,12 +5,11 @@ import openpyxl
 import pytest
 from django.conf import settings
 
+from .conftest import TODAY, needs_workbooks
 from importer.loaders import import_all
 from importer.xl import Workbooks
 from kpi.export import LAYOUT
 from kpi.service import compute_year
-
-from .conftest import TODAY, needs_workbooks
 
 pytestmark = pytest.mark.django_db
 
@@ -26,9 +25,8 @@ def test_labels_match_original_sheet():
 def test_xlsx_export_values(db):
     from rest_framework.test import APIClient
 
-    from core.models import Role
-
     from .conftest import make_user
+    from core.models import Role
 
     wb = Workbooks(settings.WORKBOOK_DIR)
     site, _ = import_all(wb, 2026, TODAY)

@@ -14,6 +14,8 @@ from django.db.models import Count, Q, Sum
 from django.db.models.functions import ExtractMonth
 from django.utils import timezone
 
+from . import formulas as F
+from .models import MonthlyAggregate
 from core.models import AssetType
 from ops.models import (
     DailyReading,
@@ -27,9 +29,6 @@ from ops.models import (
     WorkOrder,
 )
 from plan.models import BudgetLine, MonthlyBudget, Tariff
-
-from . import formulas as F
-from .models import MonthlyAggregate
 
 MONTHS_FR = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
 

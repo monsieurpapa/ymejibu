@@ -9,13 +9,12 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from ops.forms import definitions
-from ops.models import QualityThreshold
-
 from . import schema as S
 from .api import request_site
 from .models import Asset, Node, Zone
 from .permissions import RolePermission, user_role
+from ops.forms import definitions
+from ops.models import QualityThreshold
 
 
 def _me(user):

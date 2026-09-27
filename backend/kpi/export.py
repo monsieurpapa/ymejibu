@@ -12,10 +12,9 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
+from .service import MONTHS_FR
 from ops.models import FailureCause as FC
 from ops.models import NRWCause as NC
-
-from .service import MONTHS_FR
 
 MONTH_HEADERS = ["Janvier", "Fevrier", "Mars", "Avril", "Mai", "Juin", "Juillet", "Aout", "Septembre", "Octobre", "Novembre", "Décembre"]
 
