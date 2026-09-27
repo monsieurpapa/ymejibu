@@ -1,4 +1,4 @@
-import { ArrowLeft, CalendarRange, ChartLine, ClipboardList, FileSpreadsheet, FileText, LoaderCircle, Map as MapIcon, Package, RefreshCw, Siren, TriangleAlert, Wallet } from "lucide-react";
+import { ArrowLeft, CalendarRange, ChartLine, ClipboardList, FileSpreadsheet, FileText, LoaderCircle, Map as MapIcon, Package, RefreshCw, Siren, TriangleAlert, Users, Wallet } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Link, NavLink, Navigate, Route, Routes } from "react-router-dom";
 import { api, download } from "../lib/api";
@@ -9,6 +9,7 @@ import KpiView, { type KpiResult } from "./KpiView";
 import { BudgetView, PlanView } from "./PlanView";
 import Review from "./Review";
 import StockView from "./StockView";
+import UsersView from "./UsersView";
 
 const MapView = lazy(() => import("./MapView"));
 
@@ -81,6 +82,7 @@ export default function Dashboard() {
         {me?.role !== "FUNDER" && <NavLink to="/tableau-de-bord/stock" viewTransition><Package size={18} aria-hidden="true" />Stock</NavLink>}
         <NavLink to="/tableau-de-bord/budget" viewTransition><Wallet size={18} aria-hidden="true" />Budget</NavLink>
         <NavLink to="/tableau-de-bord/plan" viewTransition><CalendarRange size={18} aria-hidden="true" />Plan annuel</NavLink>
+        {me?.is_superuser && <NavLink to="/tableau-de-bord/utilisateurs" viewTransition><Users size={18} aria-hidden="true" />Utilisateurs</NavLink>}
       </nav>
 
       {error && <p className="banner critical" role="alert"><TriangleAlert size={20} aria-hidden="true" /><span className="banner-body">{error}</span></p>}
@@ -92,6 +94,7 @@ export default function Dashboard() {
           <Route path="stock" element={<StockView canWrite={canStock} />} />
           <Route path="budget" element={<BudgetView kpi={kpi} />} />
           <Route path="plan" element={<PlanView year={year} />} />
+          <Route path="utilisateurs" element={<UsersView />} />
           <Route path="*" element={<Navigate to="/tableau-de-bord" replace />} />
         </Routes>
       </div>

@@ -8,6 +8,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.routers import DefaultRouter
 
 from core import api as core_api
+from core import users_api
 from core import views as core_views
 from kpi import views as kpi_views
 from ops import api as ops_api
@@ -22,6 +23,7 @@ router.register("segments", core_api.PipeSegmentViewSet)
 router.register("fittings", core_api.FittingViewSet)
 router.register("people", core_api.PersonViewSet)
 router.register("staffing-needs", core_api.StaffingNeedViewSet)
+router.register("users", users_api.AccountViewSet, basename="users")
 router.register("submissions", ops_api.SubmissionViewSet)
 router.register("readings", ops_api.ReadingViewSet)
 router.register("incidents", ops_api.IncidentViewSet)

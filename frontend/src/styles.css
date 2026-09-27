@@ -368,7 +368,7 @@ input[readonly] { background: var(--surface-2); }
   animation: grow 0.5s var(--ease) both; }
 .hbar-value { text-align: right; font-variant-numeric: tabular-nums; }
 
-.table-scroll { overflow-x: auto; border-radius: var(--radius-sm); }
+.table-scroll { overflow-x: auto; border-radius: var(--radius-sm); position: relative; } /* keeps .sr text inside the scroller */
 table.data { border-collapse: collapse; width: 100%; font-size: 0.88rem; font-variant-numeric: tabular-nums; }
 table.data th, table.data td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: right; white-space: nowrap; }
 table.data th[scope="row"], table.data thead th:first-child { text-align: left; white-space: normal; min-width: 180px; }
@@ -434,3 +434,51 @@ table.data thead th { position: sticky; top: 0; background: var(--surface); colo
   ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
   html { scroll-behavior: auto; }
 }
+
+/* ---------------------------------------------------------------- dialogs */
+.modal-backdrop { position: fixed; inset: 0; z-index: 3000; background: rgba(8, 15, 25, 0.55); display: grid; place-items: center; padding: 16px;
+  animation: fade-in 0.15s ease-out both; }
+.modal { width: min(560px, 100%); max-height: calc(100dvh - 32px); display: flex; flex-direction: column; background: var(--surface);
+  border-radius: 14px; box-shadow: var(--shadow-lg); border: 1px solid var(--line); animation: pop-in 0.2s var(--ease) both; }
+.modal.wide { width: min(760px, 100%); }
+.modal-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.modal-head h2 { margin: 0; flex: 1; font-size: 1.1rem; }
+.modal-body { padding: 16px; overflow-y: auto; }
+.modal-foot { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--line);
+  background: var(--surface-2); border-radius: 0 0 14px 14px; }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes pop-in { from { opacity: 0; transform: translateY(10px) scale(0.98); } }
+@media (max-width: 520px) {
+  .modal-backdrop { place-items: end center; padding: 0; }
+  .modal, .modal.wide { width: 100%; max-height: 92dvh; border-radius: 14px 14px 0 0; }
+}
+
+/* ---------------------------------------------------------------- user administration */
+.btn.outline-warning { --b-bg: var(--surface); --b-fg: var(--tone-amber-fg); --b-border: color-mix(in srgb, var(--tone-amber-fg) 45%, transparent); --b-hover: var(--tone-amber-bg); }
+.filters-inline select { flex: 0 1 220px; }
+.search-field { position: relative; display: inline-flex; align-items: center; flex: 1 1 240px; }
+.search-field > svg { position: absolute; left: 12px; color: var(--muted); pointer-events: none; }
+.search-field input { padding-left: 36px; width: 100%; }
+.user-row { align-items: center; flex-wrap: wrap; padding: 10px 0; }
+.user-row.inactive .user-main { opacity: 0.6; }
+.user-main { display: flex; align-items: center; gap: 12px; flex: 1 1 320px; min-width: 0; }
+.user-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.avatar.sm { width: 40px; height: 40px; border-radius: 10px; font-size: 0.95rem; background: var(--t-solid); color: var(--t-on); }
+.access-box { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px 4px; margin: 4px 0 14px; background: var(--surface-2); }
+.access-box > legend { padding: 0 6px; margin-left: -4px; }
+.check-line { display: flex; gap: 10px; align-items: flex-start; min-height: 44px; padding: 6px 0; cursor: pointer; }
+.check-line input { width: 22px; height: 22px; min-height: 0; margin-top: 1px; accent-color: var(--brand); flex-shrink: 0; }
+.caps { list-style: none; margin: 0 0 10px; padding: 10px 12px; display: grid; gap: 4px; background: var(--surface); border-radius: var(--radius-sm);
+  border: 1px dashed var(--line); font-size: 0.9rem; }
+.caps li { display: flex; gap: 8px; align-items: flex-start; }
+.caps li svg { margin-top: 2px; }
+.caps li.yes svg { color: var(--tone-green-fg); }
+.caps li.no { color: var(--muted); }
+table.rights td { text-align: center; }
+.tick-yes { display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 26px; border-radius: 6px; font-weight: 800;
+  color: var(--tone-green-fg); background: var(--tone-green-bg); }
+.tick-no { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; color: var(--muted); }
+/* Long role labels must wrap rather than widen the page on phones. */
+.chip { max-width: 100%; white-space: normal; line-height: 1.25; }
+.user-main .list-text { min-width: 0; overflow-wrap: anywhere; }
+.user-main .list-text { display: flex; flex-direction: column; gap: 3px; }

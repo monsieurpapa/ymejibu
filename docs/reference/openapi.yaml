@@ -3069,6 +3069,208 @@ paths:
               schema:
                 $ref: '#/components/schemas/SyncPushResponse'
           description: ''
+  /api/users/:
+    get:
+      operationId: users_list
+      description: Comptes utilisateurs du site (super administrateurs uniquement).
+      tags:
+      - Utilisateurs
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+          description: ''
+    post:
+      operationId: users_create
+      description: Comptes utilisateurs du site (super administrateurs uniquement).
+      tags:
+      - Utilisateurs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: ''
+  /api/users/{id}/:
+    get:
+      operationId: users_retrieve
+      description: Comptes utilisateurs du site (super administrateurs uniquement).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un(une) valeur entière unique identifiant ce(cette) utilisateur.
+        required: true
+      tags:
+      - Utilisateurs
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: ''
+    put:
+      operationId: users_update
+      description: Comptes utilisateurs du site (super administrateurs uniquement).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un(une) valeur entière unique identifiant ce(cette) utilisateur.
+        required: true
+      tags:
+      - Utilisateurs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: ''
+    patch:
+      operationId: users_partial_update
+      description: Comptes utilisateurs du site (super administrateurs uniquement).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un(une) valeur entière unique identifiant ce(cette) utilisateur.
+        required: true
+      tags:
+      - Utilisateurs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAccountRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAccountRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAccountRequest'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: ''
+    delete:
+      operationId: users_destroy
+      description: Comptes utilisateurs du site (super administrateurs uniquement).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un(une) valeur entière unique identifiant ce(cette) utilisateur.
+        required: true
+      tags:
+      - Utilisateurs
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/users/{id}/set-password/:
+    post:
+      operationId: users_set_password_create
+      description: Comptes utilisateurs du site (super administrateurs uniquement).
+      summary: Définir un nouveau mot de passe
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un(une) valeur entière unique identifiant ce(cette) utilisateur.
+        required: true
+      tags:
+      - Utilisateurs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/users/options/:
+    get:
+      operationId: users_options_retrieve
+      description: Handler method for HTTP 'OPTIONS' request.
+      summary: Rôles, droits associés, zones et fiches du personnel sans compte
+      tags:
+      - Utilisateurs
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: ''
   /api/work-orders/:
     get:
       operationId: work_orders_list
@@ -3393,6 +3595,106 @@ paths:
           description: No response body
 components:
   schemas:
+    Account:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          maxLength: 150
+          pattern: ^[\w.@+-]+$
+        email:
+          oneOf:
+          - type: string
+            format: email
+          - type: string
+            maxLength: 0
+        full_name:
+          type: string
+          maxLength: 160
+        title:
+          type: string
+          maxLength: 160
+        role:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        role_label:
+          type: string
+          readOnly: true
+        zone:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+          default: true
+        is_superuser:
+          type: boolean
+          default: false
+        person_id:
+          type: integer
+          nullable: true
+          description: Lier le compte à une fiche du personnel existante (import Excel)
+        last_login:
+          type: string
+          format: date-time
+          readOnly: true
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - date_joined
+      - id
+      - last_login
+      - role_label
+      - username
+    AccountRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+          maxLength: 150
+          pattern: ^[\w.@+-]+$
+        email:
+          oneOf:
+          - type: string
+            format: email
+          - type: string
+            maxLength: 0
+        full_name:
+          type: string
+          maxLength: 160
+        title:
+          type: string
+          maxLength: 160
+        role:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        zone:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+          default: true
+        is_superuser:
+          type: boolean
+          default: false
+        password:
+          type: string
+          writeOnly: true
+        person_id:
+          type: integer
+          nullable: true
+          description: Lier le compte à une fiche du personnel existante (import Excel)
+      required:
+      - username
     ActionPlanTask:
       type: object
       properties:
@@ -5121,6 +5423,9 @@ components:
         * `ILLEGAL_CONNECTION` - Connexions illégales
         * `READING_ERROR` - Erreurs de relevé
         * `UNBILLED_CONSUMPTION` - Volumes consommés mais non facturés
+    NullEnum:
+      enum:
+      - null
     OriginEnum:
       enum:
       - PLAN
@@ -5162,6 +5467,55 @@ components:
         * `TURBIDITY` - Turbidité (NTU)
         * `ODOUR_COLOUR` - Odeur/couleur anormale
         * `LAB` - Test laboratoire
+    PasswordRequest:
+      type: object
+      properties:
+        password:
+          type: string
+          minLength: 1
+      required:
+      - password
+    PatchedAccountRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+          maxLength: 150
+          pattern: ^[\w.@+-]+$
+        email:
+          oneOf:
+          - type: string
+            format: email
+          - type: string
+            maxLength: 0
+        full_name:
+          type: string
+          maxLength: 160
+        title:
+          type: string
+          maxLength: 160
+        role:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        zone:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+          default: true
+        is_superuser:
+          type: boolean
+          default: false
+        password:
+          type: string
+          writeOnly: true
+        person_id:
+          type: integer
+          nullable: true
+          description: Lier le compte à une fiche du personnel existante (import Excel)
     PatchedActionPlanTaskRequest:
       type: object
       properties:
@@ -5766,7 +6120,7 @@ components:
           minLength: 1
           maxLength: 160
         role:
-          $ref: '#/components/schemas/PersonRoleEnum'
+          $ref: '#/components/schemas/RoleEnum'
         duties:
           type: string
         permanent:
@@ -6133,7 +6487,7 @@ components:
           type: string
           maxLength: 160
         role:
-          $ref: '#/components/schemas/PersonRoleEnum'
+          $ref: '#/components/schemas/RoleEnum'
         duties:
           type: string
         permanent:
@@ -6179,7 +6533,7 @@ components:
           minLength: 1
           maxLength: 160
         role:
-          $ref: '#/components/schemas/PersonRoleEnum'
+          $ref: '#/components/schemas/RoleEnum'
         duties:
           type: string
         permanent:
@@ -6197,28 +6551,6 @@ components:
       required:
       - role
       - title
-    PersonRoleEnum:
-      enum:
-      - RESP_TECH
-      - ADJOINT
-      - ZONE_TECH
-      - PUMP_FOCAL
-      - STORAGE_FOCAL
-      - SSE
-      - DATA_OFFICER
-      - FUNDER
-      - CONTRACTOR
-      type: string
-      description: |-
-        * `RESP_TECH` - Responsable technique
-        * `ADJOINT` - Responsable technique adjoint (opérations, stock, logistique)
-        * `ZONE_TECH` - Technicien de zone
-        * `PUMP_FOCAL` - Point focal pompage
-        * `STORAGE_FOCAL` - Point focal stockage
-        * `SSE` - Responsable SSE
-        * `DATA_OFFICER` - Responsable base de données
-        * `FUNDER` - Bailleur (lecture seule)
-        * `CONTRACTOR` - Prestataire (non permanent)
     PipeSegment:
       type: object
       properties:
@@ -6419,6 +6751,28 @@ components:
           description: Valeur par défaut à valider par le Responsable technique
       required:
       - parameter
+    RoleEnum:
+      enum:
+      - RESP_TECH
+      - ADJOINT
+      - ZONE_TECH
+      - PUMP_FOCAL
+      - STORAGE_FOCAL
+      - SSE
+      - DATA_OFFICER
+      - FUNDER
+      - CONTRACTOR
+      type: string
+      description: |-
+        * `RESP_TECH` - Responsable technique
+        * `ADJOINT` - Responsable technique adjoint (opérations, stock, logistique)
+        * `ZONE_TECH` - Technicien de zone
+        * `PUMP_FOCAL` - Point focal pompage
+        * `STORAGE_FOCAL` - Point focal stockage
+        * `SSE` - Responsable SSE
+        * `DATA_OFFICER` - Responsable base de données
+        * `FUNDER` - Bailleur (lecture seule)
+        * `CONTRACTOR` - Prestataire (non permanent)
     ServerSubmission:
       type: object
       properties:

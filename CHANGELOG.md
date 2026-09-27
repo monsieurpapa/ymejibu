@@ -5,6 +5,8 @@ Toutes les modifications notables sont consignées ici. Format : [Keep a Changel
 ## [Non publié]
 
 ### Ajouté
+- Gestion des utilisateurs dans l'application (onglet **Utilisateurs**, super administrateurs) : création, modification, rôle, zone, super administrateur, activation, réinitialisation du mot de passe, suppression ; liaison aux fiches du personnel importées ; tableau des droits par rôle. API `/api/users/` avec garde-fous (pas d'auto-rétrogradation, au moins un super administrateur actif, jetons révoqués à la désactivation ou au changement de mot de passe).
+- Mots de passe : validateurs Django « mot de passe courant », « uniquement numérique » et « trop proche de l'identifiant ».
 - Schéma OpenAPI (`/api/schema/`), documentation interactive (`/api/docs/`, `/api/redoc/`), fichier `docs/reference/openapi.yaml`.
 - Commande `gen_docs` : dictionnaire de données, référence des formulaires et OpenAPI générés depuis le code (`--check` en CI).
 - Documentation : architecture (arc42/C4), ADR 0004, références (KPI, rôles, configuration, commandes), guides d'exploitation et guides utilisateurs, CONTRIBUTING, SECURITY.
@@ -19,6 +21,7 @@ Toutes les modifications notables sont consignées ici. Format : [Keep a Changel
 - `DJANGO_BEHIND_HTTPS_PROXY` : cookies sécurisés et prise en compte de `X-Forwarded-Proto` derrière le proxy HTTPS.
 
 ### Corrigé
+- Sur téléphone, un tableau large pouvait élargir toute la page (texte pour lecteur d'écran positionné hors du conteneur défilant).
 - Carte du tableau de bord : les tuiles OpenStreetMap étaient refusées en production (« Access blocked ») car aucun `Referer` n'était envoyé (`Referrer-Policy: same-origin`). Politique passée à `strict-origin-when-cross-origin` (Caddy, Django, couche Leaflet) et attribution conforme.
 - `DEMO_PASSWORD=` vide dans `.env` ne désactivait pas les comptes de démonstration (la valeur par défaut `demo-2026` était reprise).
 

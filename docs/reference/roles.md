@@ -33,7 +33,8 @@ Les droits sont **vérifiés côté serveur** (`backend/core/permissions.py`). L
 | Budget, tarifs, plan | L/E | L | — | — | — | L |
 | Personnel, besoins en personnel | L/E | — | — | — | — | — |
 | Actifs, nœuds, tronçons, zones, seuils | L/E | L | L | L | L | L |
-| Administration Django (`/admin/`) | super-utilisateur seulement | | | | | |
+| Gestion des utilisateurs (onglet **Utilisateurs**, `/api/users/`) | super administrateur seulement | | | | | |
+| Administration Django (`/admin/`) | super administrateur seulement | | | | | |
 
 L = lecture, E = écriture, — = refusé (HTTP 403).
 
