@@ -10,13 +10,16 @@ interface Props {
   max?: number;
   height?: number;
   title: string;
+  /** Highlighted month (index) and click-to-select, used by the monthly detail. */
+  selected?: number | null;
+  onSelect?: (index: number) => void;
 }
 
 /**
  * Single-series monthly line: 2px line, 8px markers, recessive grid, dashed target,
  * crosshair + tooltip snapping to the nearest month. Gaps stay gaps (no data ≠ 0).
  */
-export function LineChart({ points, format, target, min, max, height = 150, title }: Props) {
+export function LineChart({ points, format, target, min, max, height = 150, title, selected, onSelect }: Props) {
   const W = 360;
   const H = height;
   const vals = points.map((p) => p.value).filter((v): v is number => v !== null);
@@ -66,13 +69,23 @@ export function LineChart({ points, format, target, min, max, height = 150, titl
         aria-label={title}
         onPointerMove={onMove}
         onPointerLeave={() => setHover(null)}
+        onClick={() => hover !== null && onSelect?.(hover)}
+        style={onSelect ? { cursor: "pointer" } : undefined}
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === "ArrowRight") setHover((h) => Math.min(points.length - 1, (h ?? -1) + 1));
           if (e.key === "ArrowLeft") setHover((h) => Math.max(0, (h ?? points.length) - 1));
+          if ((e.key === "Enter" || e.key === " ") && hover !== null && onSelect) {
+            e.preventDefault();
+            onSelect(hover);
+          }
         }}
         onBlur={() => setHover(null)}
       >
+        {selected != null && (
+          <rect x={x(selected) - (W - pad.l - pad.r) / Math.max(points.length - 1, 1) / 2} y={pad.t}
+            width={(W - pad.l - pad.r) / Math.max(points.length - 1, 1)} height={H - pad.t - pad.b} className="sel-band" />
+        )}
         {ticks.map((t, i) => (
           <g key={i}>
             <line x1={pad.l} x2={W - pad.r} y1={y(t)} y2={y(t)} className="grid" />
@@ -91,13 +104,14 @@ export function LineChart({ points, format, target, min, max, height = 150, titl
           </g>
         )}
         {segments.map((d, i) => <path key={i} d={d} className="line" />)}
-        {points.map((p, i) => (p.value === null ? null : <circle key={i} cx={x(i)} cy={y(p.value)} r={4} className="dotm" />))}
+        {points.map((p, i) => (p.value === null ? null : <circle key={i} cx={x(i)} cy={y(p.value)} r={i === selected ? 5.5 : 4} className="dotm" />))}
         {hover !== null && <line x1={x(hover)} x2={x(hover)} y1={pad.t} y2={H - pad.b} className="crosshair" />}
       </svg>
       {hp && (
         <div className="tooltip" id={tid} style={{ left: `${(x(hover!) / W) * 100}%` }} role="tooltip">
           <strong>{hp.value === null ? "Pas de donnée" : format(hp.value)}</strong>
           <span>{hp.label}{hp.note ? ` · ${hp.note}` : ""}</span>
+          {onSelect && <span className="tooltip-hint">Cliquer pour le détail du mois</span>}
         </div>
       )}
     </div>

@@ -93,6 +93,7 @@ class KpiYearSerializer(serializers.Serializer):
     today = serializers.DateField()
     months = KpiMonthSerializer(many=True)
     annual = serializers.DictField(help_text="Totaux et ratios annuels (ratio des sommes)")
+    catalog = serializers.DictField(help_text="Titres, formats, cibles et libellés des ventilations (kpi/catalog.py), partagés avec le rapport PDF")
 
 
 class MapAssetSerializer(serializers.Serializer):

@@ -1,7 +1,12 @@
-import { Activity, ChartColumn, CircleCheck, CircleX, Droplet, Droplets, FlaskConical, Gauge, Info, ShieldCheck, Table2, TriangleAlert, Wallet, Wrench, Zap, type LucideIcon } from "lucide-react";
+import {
+  Activity, ChartColumn, CircleCheck, CircleX, Droplet, Droplets, FlaskConical, Gauge, Info, ShieldCheck, Table2, TriangleAlert, Wallet,
+  Wrench, Zap, type LucideIcon,
+} from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { HBars, LineChart } from "../charts/LineChart";
 import { IconBadge, type Tone } from "../ui/meta";
 import { fmt, type FmtKey } from "./format";
+import MonthDetail from "./MonthDetail";
 
 export interface KpiMonth {
   month: number;
@@ -13,37 +18,41 @@ export interface KpiMonth {
   provisional: Record<string, number>;
   values: Record<string, number | null>;
 }
-export interface KpiResult { year: number; site: string; today: string; months: KpiMonth[]; annual: Record<string, number | null> }
 
-interface KpiDef {
+/** Served by /api/kpi/ (backend kpi/catalog.py): the same titles, targets and labels as the PDF report. */
+export interface CatalogKpi {
   key: string;
   title: string;
-  f: FmtKey;
-  target?: { value: number; label: string; better: "up" | "down" };
+  fmt: string;
+  target: { value: number; label: string; better: "up" | "down" } | null;
+  better: "up" | "down" | null;
   help: string;
-  icon: LucideIcon;
-  tone: Tone;
+}
+export interface Catalog {
+  kpis: CatalogKpi[];
+  table_rows: { key: string; label: string; fmt: string }[];
+  breakdowns: { key: string; title: string; fmt: string; items: { key: string; label: string }[] }[];
+  figures: { title: string; items: { key: string; label: string; fmt: string }[] }[];
+  pm_categories: { key: string; label: string }[];
+}
+export interface KpiResult {
+  year: number; site: string; today: string; months: KpiMonth[]; annual: Record<string, number | null>; catalog: Catalog;
 }
 
-// Default targets: to be confirmed by the Responsable technique (see README).
-export const KPIS: KpiDef[] = [
-  { key: "availability", icon: Activity, tone: "blue", title: "Disponibilité du réseau", f: "pct", target: { value: 0.95, label: "cible 95 %", better: "up" },
-    help: "(heures du mois − heures d'arrêt) / heures du mois" },
-  { key: "efficiency", icon: Droplets, tone: "teal", title: "Rendement du réseau", f: "pct", target: { value: 0.8, label: "cible 80 %", better: "up" },
-    help: "eau facturée / eau introduite" },
-  { key: "nrw_m3", icon: Droplet, tone: "orange", title: "Eau non facturée", f: "m3", help: "eau introduite − eau facturée" },
-  { key: "repair_rate", icon: Wrench, tone: "orange", title: "Taux de réparation des pannes", f: "pct", target: { value: 0.9, label: "cible 90 %", better: "up" },
-    help: "pannes clôturées / pannes signalées (registre des pannes)" },
-  { key: "pm_rate", icon: ShieldCheck, tone: "green", title: "Taux de maintenance préventive", f: "pct", target: { value: 0.9, label: "cible 90 %", better: "up" },
-    help: "ordres de travail préventifs réalisés / planifiés" },
-  { key: "quality_rate", icon: FlaskConical, tone: "violet", title: "Conformité de la qualité de l'eau", f: "pct", target: { value: 0.95, label: "cible 95 %", better: "up" },
-    help: "mesures conformes / mesures (chlore résiduel, turbidité, laboratoire)" },
-  { key: "energy_cost_per_m3", icon: Zap, tone: "amber", title: "Coût énergétique par m³", f: "usd3", help: "(kWh × tarif + litres × prix) / m³ pompés" },
-  { key: "kwh_per_m3", icon: Gauge, tone: "amber", title: "Intensité électrique", f: "dec3", help: "kWh / m³ pompés" },
-  { key: "budget_variance", icon: Wallet, tone: "slate", title: "Écart budgétaire", f: "usd", target: { value: 0, label: "budget", better: "down" },
-    help: "dépenses réelles − budget prévu (négatif = sous le budget)" },
-  { key: "incidents_reported", icon: TriangleAlert, tone: "red", title: "Pannes signalées", f: "int", help: "nombre de pannes par mois" },
-];
+const LOOK: Record<string, { icon: LucideIcon; tone: Tone }> = {
+  availability: { icon: Activity, tone: "blue" },
+  efficiency: { icon: Droplets, tone: "teal" },
+  nrw_m3: { icon: Droplet, tone: "orange" },
+  repair_rate: { icon: Wrench, tone: "orange" },
+  pm_rate: { icon: ShieldCheck, tone: "green" },
+  quality_rate: { icon: FlaskConical, tone: "violet" },
+  energy_cost_per_m3: { icon: Zap, tone: "amber" },
+  kwh_per_m3: { icon: Gauge, tone: "amber" },
+  budget_variance: { icon: Wallet, tone: "slate" },
+  incidents_reported: { icon: TriangleAlert, tone: "red" },
+};
+
+const fmtOf = (kind: string) => fmt[(kind in fmt ? kind : "num") as FmtKey];
 
 function latest(months: KpiMonth[], key: string) {
   for (let i = months.length - 1; i >= 0; i--) {
@@ -53,15 +62,16 @@ function latest(months: KpiMonth[], key: string) {
   return null;
 }
 
-function Card({ def, data }: { def: KpiDef; data: KpiResult }) {
+function Card({ def, data, selected, onSelect }: { def: CatalogKpi; data: KpiResult; selected: number; onSelect: (i: number) => void }) {
   const last = latest(data.months, def.key);
-  const f = fmt[def.f];
+  const f = fmtOf(def.fmt);
+  const look = LOOK[def.key] ?? { icon: ChartColumn, tone: "blue" as Tone };
   const ok = last && def.target ? (def.target.better === "up" ? last.v >= def.target.value : last.v <= def.target.value) : null;
   const src = last?.m.sources[def.key] ?? last?.m.sources[Object.keys(last.m.sources)[0]];
   return (
     <article className="kpi card" aria-labelledby={`kpi-${def.key}`}>
       <header>
-        <IconBadge icon={def.icon} tone={def.tone} />
+        <IconBadge icon={look.icon} tone={look.tone} />
         <div>
           <h3 id={`kpi-${def.key}`}>{def.title}</h3>
           <p className="muted small">{def.help}</p>
@@ -93,48 +103,40 @@ function Card({ def, data }: { def: KpiDef; data: KpiResult }) {
         }))}
         format={f}
         target={def.target ? { value: def.target.value, label: def.target.label } : undefined}
-        min={def.f === "pct" ? 0 : undefined}
-        max={def.f === "pct" ? 1 : undefined}
+        min={def.fmt === "pct" ? 0 : undefined}
+        max={def.fmt === "pct" ? 1 : undefined}
+        selected={selected}
+        onSelect={(i) => data.months[i].status !== "future" && onSelect(i)}
       />
     </article>
   );
 }
 
-const TABLE_ROWS: [string, string, FmtKey][] = [
-  ["volume_introduced", "Eau introduite", "m3"],
-  ["volume_billed", "Eau facturée", "m3"],
-  ["nrw_m3", "Eau non facturée", "m3"],
-  ["efficiency", "Rendement", "pct"],
-  ["downtime_total", "Heures d'arrêt", "h"],
-  ["availability", "Disponibilité", "pct"],
-  ["incidents_reported", "Pannes signalées", "int"],
-  ["incidents_closed", "Pannes réparées", "int"],
-  ["repair_rate", "Taux de réparation", "pct"],
-  ["pm_planned_total", "Maintenances préventives prévues", "int"],
-  ["pm_done_total", "Maintenances préventives réalisées", "int"],
-  ["pm_rate", "Taux de maintenance préventive", "pct"],
-  ["kwh", "Électricité (kWh)", "int"],
-  ["fuel_l", "Carburant (L)", "int"],
-  ["energy_cost_per_m3", "Coût énergétique / m³", "usd3"],
-  ["budget", "Budget prévu", "usd"],
-  ["actual_total", "Dépense réelle", "usd"],
-  ["budget_variance", "Écart budgétaire", "usd"],
-  ["quality_rate", "Conformité qualité", "pct"],
-];
-
-const CAUSES: Record<string, string> = {
-  VANDALISM: "Vandalisme et vol", OVERPRESSURE: "Surpression", SHALLOW_PIPE: "Tuyau mal enfoui", ILLEGAL_CONNECTION: "Connexion illégale",
-  MISHANDLING: "Mauvaise manipulation", POOR_PIPE_QUALITY: "Mauvaise qualité du tuyau", POOR_BACKFILL: "Mauvais remblai",
-  GROUND_MOVEMENT: "Mouvement de terrain", POOR_INSTALLATION: "Mauvaise installation", WATER_HAMMER: "Coup de bélier",
-  FAULTY_CONNECTION: "Connexion défectueuse", OTHER: "Autre",
-};
+/** Default month: the current one, else the last month with data, else January. */
+function defaultMonth(data: KpiResult) {
+  const cur = data.months.findIndex((m) => m.status === "current");
+  if (cur >= 0) return cur;
+  for (let i = data.months.length - 1; i >= 0; i--) if (data.months[i].has_data) return i;
+  return 0;
+}
 
 export default function KpiView({ data }: { data: KpiResult }) {
-  const causes = Object.entries(CAUSES)
-    .map(([k, label]) => ({ label, value: (data.annual[`rca_${k}`] as number) || 0 }))
+  const [month, setMonth] = useState(() => defaultMonth(data));
+  const detailRef = useRef<HTMLDivElement>(null);
+  useEffect(() => setMonth(defaultMonth(data)), [data.year]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const rca = useMemo(() => data.catalog.breakdowns.find((b) => b.key === "rca"), [data.catalog]);
+  const causes = (rca?.items ?? [])
+    .map((it) => ({ label: it.label, value: (data.annual[it.key] as number) || 0 }))
     .filter((c) => c.value > 0)
     .sort((a, b) => b.value - a.value);
   const current = data.months.find((m) => m.status === "current");
+
+  const pick = (i: number, scroll = false) => {
+    setMonth(i);
+    if (scroll) detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <>
       {current && (
@@ -144,8 +146,12 @@ export default function KpiView({ data }: { data: KpiResult }) {
           en cours sont partielles.</span>
         </p>
       )}
+      <p className="muted small">Astuce : cliquez sur un point d'un graphique ou sur un mois du tableau pour afficher le détail de ce mois.</p>
       <div className="kpi-grid">
-        {KPIS.map((k) => <Card key={k.key} def={k} data={data} />)}
+        {data.catalog.kpis.map((k) => <Card key={k.key} def={k} data={data} selected={month} onSelect={(i) => pick(i, true)} />)}
+      </div>
+      <div ref={detailRef} style={{ scrollMarginTop: 72 }}>
+        <MonthDetail data={data} index={month} onChange={(i) => pick(i)} />
       </div>
       <section className="card">
         <h2 style={{ marginTop: 0 }}><IconBadge icon={ChartColumn} tone="red" size="sm" />Causes des pannes {data.year}</h2>
@@ -159,24 +165,32 @@ export default function KpiView({ data }: { data: KpiResult }) {
             <thead>
               <tr>
                 <th scope="col">Indicateur</th>
-                {data.months.map((m) => <th scope="col" key={m.month}>{m.label.slice(0, 4)}</th>)}
+                {data.months.map((m, i) => (
+                  <th scope="col" key={m.month} className={i === month ? "col-selected" : ""}>
+                    {m.status === "future" ? m.label.slice(0, 4) : (
+                      <button type="button" className="th-btn" onClick={() => pick(i, true)} aria-label={`Détail de ${m.label}`}>
+                        {m.label.slice(0, 4)}
+                      </button>
+                    )}
+                  </th>
+                ))}
                 <th scope="col">Année</th>
               </tr>
             </thead>
             <tbody>
-              {TABLE_ROWS.map(([key, label, f]) => (
+              {data.catalog.table_rows.map(({ key, label, fmt: kind }) => (
                 <tr key={key}>
                   <th scope="row">{label}</th>
-                  {data.months.map((m) => {
+                  {data.months.map((m, i) => {
                     const v = m.values[key];
                     return (
-                      <td key={m.month} className={m.status === "future" ? "future" : ""}>
-                        {v === null || v === undefined ? "" : fmt[f](v)}
+                      <td key={m.month} className={`${m.status === "future" ? "future" : ""}${i === month ? " col-selected" : ""}`}>
+                        {v === null || v === undefined ? "" : fmtOf(kind)(v)}
                         {m.sources[key] === "historique" && v !== null ? <sup title="historique Excel"> h</sup> : null}
                       </td>
                     );
                   })}
-                  <td>{data.annual[key] === null || data.annual[key] === undefined ? "" : fmt[f](data.annual[key] as number)}</td>
+                  <td>{data.annual[key] === null || data.annual[key] === undefined ? "" : fmtOf(kind)(data.annual[key] as number)}</td>
                 </tr>
               ))}
             </tbody>

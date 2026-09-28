@@ -1,4 +1,4 @@
-import { ArrowLeft, CalendarRange, ChartLine, ClipboardList, FileSpreadsheet, FileText, LoaderCircle, Map as MapIcon, Package, RefreshCw, Siren, TriangleAlert, Users, Wallet } from "lucide-react";
+import { ArrowLeft, CalendarRange, ChartLine, ClipboardList, FileDown, FileSpreadsheet, FileText, LoaderCircle, Map as MapIcon, Package, RefreshCw, Siren, TriangleAlert, Users, Wallet } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Link, NavLink, Navigate, Route, Routes } from "react-router-dom";
 import { api, download } from "../lib/api";
@@ -16,7 +16,8 @@ const MapView = lazy(() => import("./MapView"));
 interface Overview { submissions_to_review: number; open_incidents: number; critical_open: number; history_actual_months: number }
 
 export default function Dashboard() {
-  const { me, online, ref } = useApp();
+  const { me, online, ref, notify } = useApp();
+  const [pdfBusy, setPdfBusy] = useState(false);
   const [year, setYear] = useState(new Date().getFullYear());
   const [kpi, setKpi] = useState<KpiResult | null>(null);
   const [overview, setOverview] = useState<Overview | null>(null);
@@ -35,6 +36,16 @@ export default function Dashboard() {
       })
       .catch((e) => setError(online ? e.message : "Hors ligne : le tableau de bord nécessite une connexion."))
       .finally(() => setLoading(false));
+  };
+  const pdf = async () => {
+    setPdfBusy(true);
+    try {
+      await download(`/api/kpi/report.pdf?year=${year}`, `ymejibu_indicateurs_${year}.pdf`);
+    } catch (e: any) {
+      notify(e.message || "Téléchargement impossible", "red");
+    } finally {
+      setPdfBusy(false);
+    }
   };
   useEffect(load, [year]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -61,6 +72,9 @@ export default function Dashboard() {
         </select>
         <button className="btn secondary small" onClick={load} disabled={loading}>
           <RefreshCw size={16} className={loading ? "spin" : ""} aria-hidden="true" />Actualiser
+        </button>
+        <button className="btn primary small" onClick={pdf} disabled={pdfBusy || !online}>
+          {pdfBusy ? <LoaderCircle size={16} className="spin" aria-hidden="true" /> : <FileDown size={16} aria-hidden="true" />}Rapport PDF (graphiques)
         </button>
         <button className="btn outline-success small" onClick={() => download(`/api/kpi/export.xlsx?year=${year}`, `ymejibu_KPI_${year}.xlsx`)}>
           <FileSpreadsheet size={16} aria-hidden="true" />Export XLSX (format O&M KPI)

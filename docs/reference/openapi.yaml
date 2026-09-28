@@ -800,6 +800,34 @@ paths:
                 type: string
                 format: binary
           description: ''
+  /api/kpi/report.pdf:
+    get:
+      operationId: kpi_report.pdf_retrieve
+      summary: Rapport PDF des indicateurs (graphiques inclus)
+      parameters:
+      - in: query
+        name: month
+        schema:
+          type: integer
+        description: '1 à 12 : rapport du mois seul ; absent : rapport annuel complet'
+      - in: query
+        name: year
+        schema:
+          type: integer
+        description: 'Année (par défaut : année en cours)'
+      tags:
+      - Indicateurs
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: ''
   /api/me/:
     get:
       operationId: me_retrieve
@@ -5097,8 +5125,14 @@ components:
           type: object
           additionalProperties: {}
           description: Totaux et ratios annuels (ratio des sommes)
+        catalog:
+          type: object
+          additionalProperties: {}
+          description: Titres, formats, cibles et libellés des ventilations (kpi/catalog.py),
+            partagés avec le rapport PDF
       required:
       - annual
+      - catalog
       - months
       - site
       - today

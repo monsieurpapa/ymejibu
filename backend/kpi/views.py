@@ -5,8 +5,10 @@ from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
+from . import catalog
 from .export import csv_text, workbook_bytes
 from .models import MonthlyAggregate
+from .report_pdf import build_report
 from .service import compute_year, to_json
 from core import schema as S
 from core.api import request_site
@@ -27,7 +29,32 @@ def _year(request):
 @permission_classes([RolePermission])
 def kpis(request):
     site = request_site(request)
-    return Response(to_json(compute_year(site, _year(request))))
+    return Response({**to_json(compute_year(site, _year(request))), "catalog": catalog.as_json()})
+
+
+@extend_schema(tags=["Indicateurs"], parameters=[
+    OpenApiParameter("year", int, description="Année (par défaut : année en cours)"),
+    OpenApiParameter("month", int, description="1 à 12 : rapport du mois seul ; absent : rapport annuel complet"),
+], responses={(200, "application/pdf"): OpenApiTypes.BINARY}, summary="Rapport PDF des indicateurs (graphiques inclus)")
+@api_view(["GET"])
+@permission_classes([RolePermission])
+def report_pdf(request):
+    site = request_site(request)
+    year = _year(request)
+    month = request.query_params.get("month")
+    try:
+        month = int(month) if month else None
+    except ValueError:
+        month = None
+    if month is not None and not 1 <= month <= 12:
+        return Response({"detail": "Mois invalide (1 à 12)."}, status=400)
+    person = getattr(request.user, "person", None)
+    who = (person.full_name if person and person.full_name else request.user.get_username())
+    data = build_report(compute_year(site, year), site.name, month=month, generated_by=who)
+    suffix = f"{year}-{month:02d}" if month else str(year)
+    resp = HttpResponse(data, content_type="application/pdf")
+    resp["Content-Disposition"] = f'attachment; filename="ymejibu_indicateurs_{site.code}_{suffix}.pdf"'
+    return resp
 
 
 @extend_schema(tags=["Indicateurs"], parameters=[OpenApiParameter("year", int, description="Année (par défaut : année en cours)")], responses={(200, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"): OpenApiTypes.BINARY},
@@ -100,5 +127,5 @@ def overview(request):
     })
 
 
-for _view in (kpis, export_xlsx, export_csv, map_data, overview):
+for _view in (kpis, report_pdf, export_xlsx, export_csv, map_data, overview):
     set_roles(_view, read=DASHBOARD_ROLES)

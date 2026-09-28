@@ -378,6 +378,52 @@ table.data td.future { background: var(--surface-2); }
 table.data td.left, table.data th.left { text-align: left; }
 table.data.text td, table.data.text th { text-align: left; white-space: normal; }
 table.data thead th { position: sticky; top: 0; background: var(--surface); color: var(--ink-2); font-weight: 700; }
+table.data td.num, table.data th.num { text-align: right; white-space: nowrap; }
+table.data .pad { padding-left: 24px; }
+table.month-kpis td:first-child { width: 36%; }
+table.data td.strong { font-weight: 700; color: var(--ink); }
+table.data .col-selected { background: color-mix(in srgb, var(--brand) 9%, transparent); }
+table.data thead th.col-selected { background: color-mix(in srgb, var(--brand) 12%, var(--surface)); }
+.th-btn { font: inherit; font-weight: 700; color: var(--brand); background: none; border: 0; padding: 6px 4px; min-height: 32px; cursor: pointer;
+  text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--brand) 35%, transparent); text-underline-offset: 3px; border-radius: 4px; }
+.th-btn:hover { text-decoration-color: var(--brand); }
+
+/* Monthly detail (Indicateurs) */
+.month-detail { scroll-margin-top: 72px; }
+.month-nav { display: flex; align-items: center; gap: 6px; margin: 12px 0; }
+.month-nav > .btn { flex: none; min-width: var(--tap); }
+.month-strip { flex: 1; display: grid; grid-template-columns: repeat(12, minmax(44px, 1fr)); gap: 4px; overflow-x: auto; padding: 2px; scrollbar-width: thin; }
+.month-btn { position: relative; min-height: var(--tap); padding: 6px 2px; font: inherit; font-size: 0.86rem; font-weight: 600; color: var(--ink-2);
+  background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s; }
+.month-btn:hover:not(:disabled) { background: var(--surface-2); border-color: var(--brand); }
+.month-btn.on { background: var(--tone-blue-solid); border-color: var(--tone-blue-solid); color: var(--tone-blue-on); }
+.month-btn.future, .month-btn:disabled { color: var(--muted); background: var(--surface-2); border-style: dashed; cursor: not-allowed; }
+.month-btn .has-data { position: absolute; top: 5px; right: 5px; width: 6px; height: 6px; border-radius: 50%; background: var(--tone-green-solid); }
+.month-btn.on .has-data { background: var(--tone-blue-on); }
+.month-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 8px 0 12px; }
+.month-head h3 { margin: 0; font-size: 1.25rem; }
+.month-head .overview { margin: 0; }
+.delta { display: inline-flex; align-items: center; gap: 3px; font-weight: 700; white-space: nowrap; }
+.delta.good { color: var(--good); }
+.delta.bad { color: var(--critical); }
+.delta.neutral { color: var(--muted); font-weight: 600; }
+.figure-grid, .breakdown-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; margin-top: 16px; }
+.breakdown-grid { grid-template-columns: repeat(auto-fit, minmax(max(300px, 40%), 1fr)); }
+.figure-box { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 12px 14px; background: var(--surface-2); min-width: 0; }
+.figure-box h4 { margin: 0 0 8px; font-size: 0.95rem; color: var(--ink); }
+.figure-box dl { margin: 0; display: grid; gap: 2px; }
+.figure-box dl div { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px dotted var(--line); }
+.figure-box dl div:last-child { border-bottom: 0; }
+.figure-box dt { color: var(--muted); }
+.figure-box dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+.chart .sel-band { fill: var(--brand); opacity: 0.1; }
+.chart svg[role="button"], .chart .hit { cursor: pointer; }
+.tooltip-hint { color: var(--muted); font-size: 0.75rem; margin-top: 2px; }
+@media (max-width: 520px) {
+  .month-strip { grid-template-columns: repeat(12, 48px); }
+  .breakdown-grid { grid-template-columns: 1fr; }
+}
 
 .kv { display: grid; gap: 4px; margin: 8px 0; }
 .kv div { display: grid; grid-template-columns: minmax(120px, 30%) 1fr; gap: 8px; border-bottom: 1px dotted var(--line); padding: 3px 0; }

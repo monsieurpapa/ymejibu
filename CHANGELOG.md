@@ -5,6 +5,9 @@ Toutes les modifications notables sont consignées ici. Format : [Keep a Changel
 ## [Non publié]
 
 ### Ajouté
+- Indicateurs : **détail du mois** (choix du mois par bande de mois, flèches, clic sur un graphique ou sur l'en-tête du tableau) : indicateurs du mois comparés au mois précédent et à la cible, chiffres clés (eau, fonctionnement, énergie, budget, qualité, maintenance préventive) et répartitions (arrêts, causes de pannes, pertes d'eau, dépenses).
+- **Rapport PDF des indicateurs avec graphiques** (`/api/kpi/report.pdf`) : rapport annuel complet (synthèse, tendances avec cibles, causes, tableau mensuel paysage, une page par mois) ou rapport d'un mois (`&month=`). Mêmes droits que le tableau de bord. Bouton « Rapport PDF » et « PDF du mois ».
+- Catalogue des indicateurs (`backend/kpi/catalog.py`) partagé par l'écran et le PDF, servi dans `GET /api/kpi/` (`catalog`).
 - Gestion des utilisateurs dans l'application (onglet **Utilisateurs**, super administrateurs) : création, modification, rôle, zone, super administrateur, activation, réinitialisation du mot de passe, suppression ; liaison aux fiches du personnel importées ; tableau des droits par rôle. API `/api/users/` avec garde-fous (pas d'auto-rétrogradation, au moins un super administrateur actif, jetons révoqués à la désactivation ou au changement de mot de passe).
 - Mots de passe : validateurs Django « mot de passe courant », « uniquement numérique » et « trop proche de l'identifiant ».
 - Schéma OpenAPI (`/api/schema/`), documentation interactive (`/api/docs/`, `/api/redoc/`), fichier `docs/reference/openapi.yaml`.

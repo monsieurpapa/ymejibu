@@ -58,6 +58,7 @@ urlpatterns = [
     path("api/kpi/", kpi_views.kpis),
     path("api/kpi/export.xlsx", kpi_views.export_xlsx),
     path("api/kpi/export.csv", kpi_views.export_csv),
+    path("api/kpi/report.pdf", kpi_views.report_pdf),
     path("api/dashboard/map/", kpi_views.map_data),
     path("api/dashboard/overview/", kpi_views.overview),
     path("api/stock/alerts/", stock_api.stock_alerts),

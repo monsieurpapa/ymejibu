@@ -100,7 +100,7 @@ La conformité est calculée avec le seuil le plus précis (`QualityThreshold` :
 
 ## Cibles du tableau de bord
 
-Valeurs par défaut (à valider), définies dans `frontend/src/dashboard/KpiView.tsx` :
+Valeurs par défaut (à valider), définies dans `backend/kpi/catalog.py` : ce catalogue (titres, formats, cibles, répartitions) est servi par `GET /api/kpi/` (`catalog`) et utilisé à la fois par le tableau de bord et par le rapport PDF (`GET /api/kpi/report.pdf?year=AAAA[&month=M]`, `backend/kpi/report_pdf.py`), qui affichent donc toujours les mêmes libellés et cibles :
 
 | Indicateur | Cible |
 |---|---|
