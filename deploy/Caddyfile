@@ -1,0 +1,16 @@
+# HTTPS entry point. Caddy obtains and renews the Let's Encrypt certificate automatically.
+# DOMAIN comes from /opt/ymejibu/.env (e.g. em.203-0-113-10.sslip.io or em.ymejibu.org).
+{$DOMAIN} {
+	encode zstd gzip
+	request_body {
+		max_size 12MB
+	}
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		# OSM tiles are refused without a Referer: send only the origin cross-site.
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+	reverse_proxy web:80
+}

@@ -5,11 +5,10 @@ from decimal import Decimal
 
 import pytest
 
+from .conftest import panne_payload, pompage_payload, push
 from core.models import Asset
 from ops.models import DailyReading, Expense, FormSubmission, Incident, SafetyCheck, WaterQualityTest, WorkOrder
 from stock.models import StockItem, StockMovement, balances
-
-from .conftest import panne_payload, pompage_payload, push
 
 pytestmark = pytest.mark.django_db
 

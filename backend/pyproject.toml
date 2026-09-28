@@ -1,0 +1,5 @@
+[tool.isort]
+profile = "black"
+line_length = 130
+known_local_folder = ["core", "ops", "stock", "plan", "kpi", "importer", "config"]
+skip = ["migrations"]

@@ -1,0 +1,43 @@
+# Production overlay, used together with the base file:
+#   docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml up -d --build
+# (install.sh writes COMPOSE_FILE into .env, so a plain `docker compose ...` picks both files up.)
+x-logging: &logging
+  driver: json-file
+  options: { max-size: "10m", max-file: "5" }
+
+services:
+  db:
+    logging: *logging
+
+  backend:
+    environment:
+      DJANGO_DEBUG: "0"
+      DJANGO_BEHIND_HTTPS_PROXY: "1"
+      # Never create the demo accounts on the production server.
+      DEMO_PASSWORD: ""
+      # Untracked file, so `git pull` on the server never conflicts with the report in the repo.
+      DATA_QUALITY_REPORT: /reports/rapport-qualite-production.md
+    logging: *logging
+
+  web:
+    logging: *logging
+
+  caddy:
+    image: caddy:2-alpine
+    depends_on: [web]
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:?DOMAIN must be set in .env}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+    logging: *logging
+
+volumes:
+  caddy_data:
+  caddy_config:

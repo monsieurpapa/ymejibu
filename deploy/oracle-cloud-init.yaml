@@ -1,0 +1,33 @@
+#cloud-config
+# Oracle Cloud "Always Free" variant of hetzner-cloud-init.yaml.
+# Paste into: Create instance → Show advanced options → Management → "Paste cloud-init script".
+# Image: Canonical Ubuntu 24.04 (aarch64 for VM.Standard.A1.Flex, x86 for VM.Standard.E2.1.Micro).
+# Log in as `ubuntu` (root SSH is disabled on Oracle images). Progress: `tail -f /var/log/cloud-init-output.log`.
+package_update: true
+package_upgrade: true
+packages:
+  - git
+  - fail2ban
+  - unattended-upgrades
+  - netfilter-persistent
+  - iptables-persistent
+
+write_files:
+  - path: /etc/ssh/sshd_config.d/99-ymejibu.conf
+    content: |
+      PasswordAuthentication no
+      KbdInteractiveAuthentication no
+
+runcmd:
+  # Oracle Ubuntu images ship an iptables policy that rejects everything but SSH; do NOT use ufw here.
+  # Ports 80/443 must also be opened in the VCN security list (see docs/guides/deploiement-oracle.md).
+  - iptables -I INPUT -p tcp --dport 80 -m conntrack --ctstate NEW -j ACCEPT
+  - iptables -I INPUT -p tcp --dport 443 -m conntrack --ctstate NEW -j ACCEPT
+  - iptables -I INPUT -p udp --dport 443 -j ACCEPT
+  - netfilter-persistent save
+  - systemctl reload ssh || systemctl reload sshd || true
+  - systemctl enable --now fail2ban
+  # Waits (up to 1 h) until the pushed branch contains deploy/install.sh, then installs.
+  - bash -c 'for i in $(seq 1 120); do if [ -d /opt/ymejibu/.git ]; then git -C /opt/ymejibu pull -q --ff-only; else git clone -q --branch feat/em-platform https://github.com/monsieurpapa/ymejibu.git /opt/ymejibu; fi; [ -f /opt/ymejibu/deploy/install.sh ] && break; echo "waiting for deploy/ on GitHub ($i)"; sleep 30; done'
+  - bash /opt/ymejibu/deploy/install.sh
+  - usermod -aG docker ubuntu

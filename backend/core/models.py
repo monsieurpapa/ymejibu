@@ -33,7 +33,7 @@ class Zone(models.Model):
 
 
 class SourceTracked(models.Model):
-    source_ref = models.CharField(max_length=255, blank=True)
+    source_ref = models.CharField(max_length=255, blank=True, help_text="Origine Excel : fichier!feuille!cellule")
     raw_label = models.CharField(max_length=255, blank=True, help_text="Libellé d'origine tel que saisi dans Excel")
     flags = models.JSONField(default=list, blank=True, help_text="Anomalies détectées à l'import (codes du rapport qualité)")
 

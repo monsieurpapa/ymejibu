@@ -1,3 +1,4 @@
+import { CircleAlert, Info, Plus, Trash2 } from "lucide-react";
 import { assetByCode, compliance, QUALITY_PARAM } from "../lib/forms";
 import type { FormDef, Payload, Reference, SectionDef } from "../lib/types";
 import { FieldInput } from "./Field";
@@ -34,7 +35,7 @@ export function FormRenderer({ form, ref_, payload, onChange, errors }: Props) {
   const set = (next: Payload) => onChange(withComputed(ref_, form, next));
   return (
     <div className="form">
-      {form.intro && <p className="intro">{form.intro}</p>}
+      {form.intro && <p className="intro"><Info size={18} aria-hidden="true" style={{ marginTop: 2 }} /><span>{form.intro}</span></p>}
       {form.sections.map((s) => (
         <Section key={s.key} s={s} ref_={ref_} payload={payload} set={set} errors={errors} />
       ))}
@@ -113,8 +114,8 @@ function Section({ s, ref_, payload, set, errors }: { s: SectionDef; ref_: Refer
           <div className="table-row-head">
             <strong>Ligne {i + 1}</strong>
             {rows.length > (s.minRows ?? 0) && (
-              <button type="button" className="btn link" onClick={() => setRows(rows.filter((_, k) => k !== i))}>
-                Supprimer
+              <button type="button" className="btn link danger small" onClick={() => setRows(rows.filter((_, k) => k !== i))}>
+                <Trash2 size={15} aria-hidden="true" />Supprimer
               </button>
             )}
           </div>
@@ -138,10 +139,10 @@ function Section({ s, ref_, payload, set, errors }: { s: SectionDef; ref_: Refer
           </div>
         </div>
       ))}
-      {sectionError && <p className="error" role="alert">{sectionError}</p>}
+      {sectionError && <p className="error" role="alert"><CircleAlert size={16} aria-hidden="true" />{sectionError}</p>}
       {rows.length < (s.maxRows ?? 50) && (
         <button type="button" className="btn secondary" onClick={() => setRows([...rows, {}])}>
-          Ajouter une ligne
+          <Plus size={18} aria-hidden="true" />Ajouter une ligne
         </button>
       )}
     </fieldset>

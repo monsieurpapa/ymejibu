@@ -9,6 +9,8 @@ export const fmt = {
   usd3: (v: number) => `${nf(3).format(v)} USD`,
   h: (v: number) => `${nf(1).format(v)} h`,
   m3: (v: number) => `${nf(0).format(v)} m³`,
+  kwh: (v: number) => `${nf(0).format(v)} kWh`,
+  l: (v: number) => `${nf(0).format(v)} L`,
 };
 
 export type FmtKey = keyof typeof fmt;

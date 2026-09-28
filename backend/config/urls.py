@@ -3,9 +3,12 @@ from django.contrib import admin
 from django.http import JsonResponse
 from django.urls import include, path, re_path
 from django.views.static import serve
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from rest_framework.permissions import AllowAny
 from rest_framework.routers import DefaultRouter
 
 from core import api as core_api
+from core import users_api
 from core import views as core_views
 from kpi import views as kpi_views
 from ops import api as ops_api
@@ -20,6 +23,7 @@ router.register("segments", core_api.PipeSegmentViewSet)
 router.register("fittings", core_api.FittingViewSet)
 router.register("people", core_api.PersonViewSet)
 router.register("staffing-needs", core_api.StaffingNeedViewSet)
+router.register("users", users_api.AccountViewSet, basename="users")
 router.register("submissions", ops_api.SubmissionViewSet)
 router.register("readings", ops_api.ReadingViewSet)
 router.register("incidents", ops_api.IncidentViewSet)
@@ -42,6 +46,9 @@ def health(request):
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/health/", health),
+    path("api/schema/", SpectacularAPIView.as_view(permission_classes=[AllowAny]), name="schema"),
+    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema", permission_classes=[AllowAny]), name="swagger-ui"),
+    path("api/redoc/", SpectacularRedocView.as_view(url_name="schema", permission_classes=[AllowAny]), name="redoc"),
     path("api/auth/login/", core_views.login),
     path("api/me/", core_views.me),
     path("api/reference/", core_views.reference),
@@ -51,6 +58,7 @@ urlpatterns = [
     path("api/kpi/", kpi_views.kpis),
     path("api/kpi/export.xlsx", kpi_views.export_xlsx),
     path("api/kpi/export.csv", kpi_views.export_csv),
+    path("api/kpi/report.pdf", kpi_views.report_pdf),
     path("api/dashboard/map/", kpi_views.map_data),
     path("api/dashboard/overview/", kpi_views.overview),
     path("api/stock/alerts/", stock_api.stock_alerts),

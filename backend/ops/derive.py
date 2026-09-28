@@ -17,9 +17,6 @@ from decimal import Decimal
 from django.db import transaction
 from django.utils import timezone
 
-from core.models import Asset, AssetType, Node, Sequence, Zone
-from stock.models import StockItem, StockMovement
-
 from .forms import get_path, to_date, to_datetime, to_decimal, to_time
 from .models import (
     Complaint,
@@ -35,6 +32,8 @@ from .models import (
     WorkOrder,
 )
 from .quality import is_compliant
+from core.models import Asset, AssetType, Node, Sequence, Zone
+from stock.models import StockItem, StockMovement
 
 OK_VALUES = {"BON": True, "MAUVAIS": False, "OUI": True, "NON": False}
 # Checklist rows where "Oui" is the BAD answer (e.g. "Présence de fuite").

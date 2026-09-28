@@ -60,7 +60,17 @@ Checklist de travail. Chaque élément est coché quand il est terminé ; les d�
 - [x] Changement de pompe sur une checklist → l'ordre planifié retourne au plan
 
 ## Découvertes
-- Docker Hub est bloqué depuis l'environnement de build : `docker compose up` doit être vérifié sur la machine cible (la pile est testée en natif ici : PostgreSQL 16 + Django + build Vite + Playwright).
+- `docker compose up --build` vérifié le 2026-09-27 sur Docker Desktop (Windows) : 3 conteneurs démarrés, import au premier démarrage, `/api/health/`, connexion, KPI, export XLSX, `/api/docs/`, `sw.js` en `no-cache` OK. Construction ≈ 7 min (connexion lente).
 - Les lignes « Vidange et Nettoyage du stockage » (plan, lignes 20 et 21) sont en double avec les mêmes 12 dates : `plan_work_orders` crée donc deux ordres par date.
 - L'historique jan.–juin et le budget mensuel montrent des motifs réguliers (K10, K14) : possibles données de test, à confirmer.
 - Les tuiles OpenStreetMap ne se chargent pas dans l'environnement de build (réseau filtré) ; la carte fonctionne avec un accès internet normal.
+
+## Documentation (2026-09-27)
+- [x] Schéma OpenAPI (drf-spectacular) + Swagger `/api/docs/` + ReDoc `/api/redoc/`
+- [x] Référence générée : dictionnaire de données, formulaires, OpenAPI (`manage.py gen_docs`, vérifié en CI)
+- [x] Architecture arc42 / C4, ADR 0004 + index + modèle
+- [x] Références : KPI, rôles, configuration, commandes
+- [x] Guides : déploiement, sauvegarde, exploitation, utilisateurs, mise à jour, formulaire, nouveau site, migration Excel
+- [x] Guides utilisateurs : terrain, responsables
+- [x] CONTRIBUTING, CHANGELOG, SECURITY, modèle de PR, CI
+- [x] Correction trouvée en documentant : codes d'articles préfixés par le site (`GO-ART-001`) pour éviter une collision au 2ᵉ site

@@ -12,6 +12,7 @@ from decimal import Decimal
 from django.db import transaction
 from openpyxl.utils import column_index_from_string as col_idx
 
+from .xl import clean, is_formula, is_placeholder, node_code, parse_capacity, parse_gps, parse_month_year, strip_number
 from core.models import (
     ASSET_TYPE_CODES,
     Asset,
@@ -33,8 +34,6 @@ from ops.models import DailyReading, FailureCause, NRWCause, QualityParameter, Q
 from ops.quality import is_compliant
 from plan.models import ActionPlanTask, BudgetLine, MonthlyBudget, Tariff
 from stock.models import StockCategory, StockItem
-
-from .xl import clean, is_formula, is_placeholder, node_code, parse_capacity, parse_gps, parse_month_year, strip_number
 
 
 class Log:
@@ -458,7 +457,7 @@ def load_stock(wb, site, log):
             elif category == StockCategory.OM_TOOLS and re.search(r"logistique", group, re.I):
                 cat = StockCategory.LOGISTICS
             n += 1
-            code = f"ART-{n:03d}"
+            code = f"{site.code}-ART-{n:03d}"
             qty = {k: ws[f"{c}{i}"].value for k, c in zip(("stock", "sortie", "entree", "restant", "besoin"), qty_cols)}
             flags = []
             original = {}

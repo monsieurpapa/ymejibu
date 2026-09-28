@@ -2,17 +2,19 @@ import hashlib
 import json
 
 from django.contrib.auth import authenticate
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from ops.forms import definitions
-from ops.models import QualityThreshold
-
+from . import schema as S
 from .api import request_site
 from .models import Asset, Node, Zone
 from .permissions import RolePermission, user_role
+from ops.forms import definitions
+from ops.models import QualityThreshold
 
 
 def _me(user):
@@ -28,6 +30,8 @@ def _me(user):
     }
 
 
+@extend_schema(tags=["Authentification"], request=S.LoginRequestSerializer, responses={200: S.LoginResponseSerializer},
+               summary="Se connecter et obtenir un jeton")
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def login(request):
@@ -40,6 +44,7 @@ def login(request):
     return Response({"token": token.key, "me": _me(user)})
 
 
+@extend_schema(tags=["Authentification"], responses=S.MeSerializer, summary="Utilisateur connecté")
 @api_view(["GET"])
 @permission_classes([RolePermission])
 def me(request):
@@ -50,6 +55,9 @@ def _num(v):
     return float(v) if v is not None else None
 
 
+@extend_schema(tags=["Synchronisation"], responses={200: OpenApiTypes.OBJECT, 304: None},
+               summary="Données de référence pour le travail hors ligne",
+               description="Site, zones, actifs, nœuds, articles, seuils de qualité et définitions des formulaires. Envoyer `If-None-Match` avec l'ETag reçu : 304 si rien n'a changé.")
 @api_view(["GET"])
 @permission_classes([RolePermission])
 def reference(request):

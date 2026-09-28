@@ -23,6 +23,14 @@ DEBUG = env_bool("DJANGO_DEBUG", True)
 ALLOWED_HOSTS = [h for h in env("DJANGO_ALLOWED_HOSTS", "*").split(",") if h]
 CSRF_TRUSTED_ORIGINS = [o for o in env("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if o]
 
+# Behind the HTTPS reverse proxy (Caddy → nginx → gunicorn): trust X-Forwarded-Proto and use secure cookies.
+if env_bool("DJANGO_BEHIND_HTTPS_PROXY", False):
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"  # OSM tiles need a Referer
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -33,6 +41,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "corsheaders",
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
     "core",
     "ops",
     "stock",
@@ -94,7 +104,10 @@ else:
     }
 
 AUTH_PASSWORD_VALIDATORS = [
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 LANGUAGE_CODE = "fr"
@@ -117,6 +130,28 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ["core.permissions.RolePermission"],
     "DEFAULT_PAGINATION_CLASS": None,
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "API Yme Jibu E&M",
+    "DESCRIPTION": (
+        "API de la plateforme d'Exploitation & Maintenance du réseau d'eau Goma Ouest. "
+        "Authentification : en-tête `Authorization: Token <jeton>` obtenu par `POST /api/auth/login/`. "
+        "Toutes les données sont limitées au site de l'utilisateur ; les droits dépendent de son rôle (voir docs/reference/roles.md)."
+    ),
+    "VERSION": "0.1.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
+    "COMPONENT_SPLIT_REQUEST": True,
+    "ENUM_NAME_OVERRIDES": {
+        "StockMovementKindEnum": "stock.models.StockMovement.Kind",
+        "TariffKindEnum": "plan.models.Tariff.Kind",
+        "MaintenanceTypeEnum": "ops.models.MaintenanceType",
+        "RoleEnum": "core.models.Role",
+    },
 }
 
 CORS_ALLOWED_ORIGINS = [o for o in env("CORS_ALLOWED_ORIGINS", "http://localhost:5173").split(",") if o]

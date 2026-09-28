@@ -1,11 +1,12 @@
+from drf_spectacular.utils import extend_schema, extend_schema_field
 from rest_framework import serializers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
+from .models import StockItem, StockMovement, balances
+from core import schema as S
 from core.api import CodeRelatedField, SiteScopedViewSet, request_site
 from core.permissions import DASHBOARD_ROLES, STOCK_ROLES, RolePermission, set_roles
-
-from .models import StockItem, StockMovement, balances
 
 
 class StockItemSerializer(serializers.ModelSerializer):
@@ -23,10 +24,12 @@ class StockItemSerializer(serializers.ModelSerializer):
             cache["all"] = balances(obj.site)
         return cache["all"].get(obj.id)
 
+    @extend_schema_field(serializers.FloatField(allow_null=True))
     def get_balance(self, obj):
         b = self._balance(obj)
         return float(b) if b is not None else None
 
+    @extend_schema_field(serializers.BooleanField(allow_null=True))
     def get_alert(self, obj):
         b = self._balance(obj)
         if obj.min_threshold is None or b is None:
@@ -71,6 +74,7 @@ class StockMovementViewSet(SiteScopedViewSet):
         return qs
 
 
+@extend_schema(tags=["Stock"], responses=S.StockAlertSerializer(many=True), summary="Articles sous le seuil d'alerte")
 @api_view(["GET"])
 @permission_classes([RolePermission])
 def stock_alerts(request):

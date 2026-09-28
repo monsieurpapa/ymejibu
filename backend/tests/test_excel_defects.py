@@ -10,6 +10,7 @@ from decimal import Decimal
 import pytest
 from django.conf import settings
 
+from .conftest import TODAY, needs_workbooks, pompage_payload, push
 from core.models import Asset, Node, PipeSegment
 from importer.checks import run_all
 from importer.loaders import import_all
@@ -18,8 +19,6 @@ from kpi.models import MonthlyAggregate
 from kpi.service import compute_year
 from ops.models import DailyReading
 from stock.models import StockMovement
-
-from .conftest import TODAY, needs_workbooks, pompage_payload, push
 
 pytestmark = [pytest.mark.django_db, needs_workbooks]
 
@@ -179,10 +178,18 @@ def test_every_kpi_check_fires_on_original_workbooks():
 def client_for_go(go):
     from rest_framework.test import APIClient
 
-    from core.models import Role
     from .conftest import make_user
+    from core.models import Role
 
     user = make_user(go, "pompage_go", Role.PUMP_FOCAL)
     c = APIClient()
     c.force_authenticate(user)
     return c
+
+
+def test_second_site_import_does_not_collide(go):
+    from stock.models import StockItem
+    site2, _ = import_all(Workbooks(settings.WORKBOOK_DIR), 2026, TODAY, site_code="GE", site_name="Goma Est")
+    assert Asset.objects.filter(site=site2, code__startswith="GE-PMP-").count() == 3
+    assert StockItem.objects.filter(site=go, code__startswith="GO-ART-").count() == StockItem.objects.filter(site=site2).count()
+    assert Node.objects.filter(site=site2, code="1.10").exists() and Node.objects.filter(site=go, code="1.10").exists()

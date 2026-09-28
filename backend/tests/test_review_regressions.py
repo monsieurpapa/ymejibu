@@ -4,12 +4,11 @@ import uuid
 
 import pytest
 
-from core.models import Role
-from ops.models import Attachment, DailyReading, FormSubmission, Incident, WorkOrder
-from ops.derive import derive
-from stock.models import StockMovement
-
 from .conftest import make_user, panne_payload, pompage_payload, push
+from core.models import Role
+from ops.derive import derive
+from ops.models import Attachment, DailyReading, FormSubmission, Incident, WorkOrder
+from stock.models import StockMovement
 
 pytestmark = pytest.mark.django_db
 
@@ -202,6 +201,7 @@ def test_changing_pump_on_checklist_gives_planned_order_back(client_for, site):
 
 def test_database_error_is_retried_not_failed(client_for, monkeypatch):
     from django.db import OperationalError
+
     import ops.api as api
 
     def down(*a, **k):
